@@ -153,14 +153,6 @@ Modular architecture enables future upgrades without rewrites.
 
 ---
 
-## Development Phases
-
-**Weeks 1-2:** Config parser + Socket + Basic HTTP GET  
-**Weeks 3-4:** POST/DELETE + Multiple clients + Error handling  
-**Weeks 5-6:** CGI + Uploads + Redirects + Directory listing  
-**Weeks 7-8:** Testing + Browser compat + Memory checks + NGINX comparison  
-**Weeks 9-10:** (Transcendence) Add SSL/TLS + WebSockets + Docker
-
 ## Testing
 
 **Manual:** telnet, curl, browsers  
