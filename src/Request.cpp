@@ -6,7 +6,7 @@
 /*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/18 21:20:56 by odana             #+#    #+#             */
-/*   Updated: 2025/12/18 22:21:48 by odana            ###   ########.fr       */
+/*   Updated: 2025/12/22 10:36:40 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,18 +35,6 @@ Request Request::parse(const std::string& raw, size_t maxBodySize) {
     req.method = requestLineParsed[0];
     splitPathAndQuery(requestLineParsed[1], req.path, req.query);
     req.version = requestLineParsed[2];
-
-    if (req.method != "GET" && req.method != "POST" && req.method != "DELETE") {
-        req.state = ERROR;
-        req.errorCode = 501; //unimplemented
-        return req;
-    }
-
-    if (req.version != "HTTP/1.1") {
-        req.state = ERROR;
-        req.errorCode = 505; //version not supported
-        return req;
-    }
     
     size_t headerSep = raw.find("\r\n\r\n");
     if (headerSep == std::string::npos) {
@@ -57,18 +45,59 @@ Request Request::parse(const std::string& raw, size_t maxBodySize) {
     std::string headerRaw = raw.substr(firstSep + 2, headerSep - (firstSep + 2));
     req.headers = parseHeaders(headerRaw);
 
+    req.body = raw.substr(headerSep + 4);
+    if (req.headers.find("content-length") != req.headers.end()) {
+        int contentLength = std::atoi(req.headers["content-length"].c_str());
+        
+        if (req.body.size() < static_cast<size_t>(contentLength)) {
+            req.state = INCOMPLETE;
+            return req;
+        }
+        req.body = req.body.substr(0, contentLength);
+    }
     
-    std::string body = raw.substr(headerSep + 4);
-    if (body.size() > maxBodySize) {
+    if (!isValid(req, maxBodySize)) {
         req.state = ERROR;
-        req.errorCode = 413;
         return req;
     }
-        
-    req.body = body;
+
     req.state = COMPLETE;
     return req;
     
+}
+
+bool isValid(Request& req, size_t maxBodySize) {
+    if (req.method != "GET" && req.method != "POST" && req.method != "DELETE") {
+        req.errorCode = 501;
+        return false;
+    }
+    
+    if (req.version != "HTTP/1.1") {
+        req.errorCode = 505;
+        return false;
+    }
+    
+    if (req.path.length() > 2048) {
+        req.errorCode = 414;
+        return false;
+    }
+    
+    if (req.path.find("../") != std::string::npos) {
+        req.errorCode = 400;
+        return false;
+    }
+    
+    if (req.headers.find("host") == req.headers.end()) {
+        req.errorCode = 400;
+        return false;
+    }
+    
+    if (req.body.size() > maxBodySize) {
+        req.errorCode = 413;
+        return false;
+    }
+    
+    return true;
 }
 
 std::vector<std::string> parseRequestLine(const std::string& raw) {

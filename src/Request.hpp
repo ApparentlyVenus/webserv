@@ -6,7 +6,7 @@
 /*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/18 21:16:52 by odana             #+#    #+#             */
-/*   Updated: 2025/12/18 22:19:25 by odana            ###   ########.fr       */
+/*   Updated: 2025/12/22 10:32:09 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define REQUEST_HPP
 
 # include <string>
-# include <cctype>
+# include <cstdlib>
 # include <map>
 # include <vector>
 
@@ -42,5 +42,6 @@ static std::map<std::string, std::string> parseHeaders(const std::string& raw);
 static void splitPathAndQuery(const std::string& fullPath, std::string& path, std::string& query);
 static std::string toLower(const std::string& str);
 static std::string trim(const std::string& str);
+static bool isValid(Request& req, size_t maxBodySize);
 
 #endif
