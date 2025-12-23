@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
+/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/18 21:20:56 by odana             #+#    #+#             */
-/*   Updated: 2025/12/22 10:36:40 by odana            ###   ########.fr       */
+/*   Updated: 2025/12/23 13:07:44 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -162,24 +162,4 @@ void splitPathAndQuery(const std::string& fullPath, std::string& path, std::stri
         path = fullPath;
         query = "";
     }
-}
-
-std::string toLower(const std::string& str) {
-    std::string result = str;
-    for (size_t i = 0; i < result.size(); i++)
-        result[i] = std::tolower(result[i]);
-    return result;
-}
-
-std::string trim(const std::string& str) {
-    size_t start = 0;
-    size_t end = str.size();
-    
-    while (start < end && std::isspace(str[start]))
-        start++;
-    
-    while (end > start && std::isspace(str[end - 1]))
-        end--;
-    
-    return str.substr(start, end - start);
 }

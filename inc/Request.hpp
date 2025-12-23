@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
+/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/18 21:16:52 by odana             #+#    #+#             */
-/*   Updated: 2025/12/22 10:32:09 by odana            ###   ########.fr       */
+/*   Updated: 2025/12/23 13:30:22 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include <cstdlib>
 # include <map>
 # include <vector>
+# include "../inc/StringUtils.hpp"
 
 enum parsingState {
     COMPLETE,
