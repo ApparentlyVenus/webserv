@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/23 13:38:58 by yitani            #+#    #+#             */
-/*   Updated: 2025/12/23 16:21:01 by yitani           ###   ########.fr       */
+/*   Updated: 2025/12/24 18:05:36 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,4 +62,40 @@ std::string readFile(const std::string& path)
 		content += c;
 
 	return (content);
+}
+
+std::string getMimeType(const std::string &path)
+{
+	size_t dot = path.find_last_of('.');
+	if (dot == std::string::npos)
+		return ("application/octet-stream");
+
+	std::string ext = path.substr(dot);
+
+	if (ext == ".html" || ext == ".htm")
+		return ("text/html");
+	if (ext == ".css")
+		return ("text/css");
+	if (ext == ".js")
+		return ("application/javascript");
+	if (ext == ".json")
+		return ("application/json");
+	if (ext == ".png")
+		return ("image/png");
+	if (ext == ".jpg" || ext == ".jpeg")
+		return ("image/jpeg");
+	if (ext == ".gif")
+		return ("image/gif");
+	if (ext == ".svg")
+		return ("image/svg+xml");
+	if (ext == ".ico")
+		return ("image/x-icon");
+	if (ext == ".txt")
+		return ("text/plain");
+	if (ext == ".pdf")
+		return ("application/pdf");
+	if (ext == ".xml")
+		return ("application/xml");
+
+	return ("application/octet-stream");
 }
