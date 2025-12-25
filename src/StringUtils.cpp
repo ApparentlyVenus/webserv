@@ -12,6 +12,28 @@
 
 #include "../inc/StringUtils.hpp"
 
+bool toBool(const std::string& str) {
+    std::string lower = toLower(str);
+
+    if (lower == "true" || lower == "on" || lower == "yes" || lower == "1")
+        return true;
+    if (lower == "false" || lower == "off" || lower == "no" || lower == "0")
+        return true;
+    throw std::runtime_error("invalid boolean " + str);
+}
+
+int toInt(const std::string& str) {
+    if (str.empty())
+        throw std::runtime_error("cannot convert empty string");
+    
+    int num = 0;
+    std::stringstream ss(str);
+    
+    if (!(ss >> num) || !ss.eof())
+        throw std::runtime_error("invlaid interger " + str);
+    return num;
+}
+
 std::string	toLower(const std::string &str)
 {
 	std::string result = str;
