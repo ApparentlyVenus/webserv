@@ -36,8 +36,8 @@ std::string	trim(const std::string &str)
 
 bool	startsWith(const std::string& str, const std::string& prefix)
 {
-	int len;
-	int i;
+	size_t len;
+	size_t i;
 
 	len = prefix.length();
 	i = 0;
