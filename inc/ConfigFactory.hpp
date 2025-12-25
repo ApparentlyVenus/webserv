@@ -22,9 +22,6 @@ private:
     static void processServerDirective(ServerConfig& cfg, const Directive& dir);
     static void processLocationDirective(LocationConfig& cfg, const Directive& dir);
     
-    static int toInt(const std::string& str);
-    static bool toBool(const std::string& str);
-    
     static void validateServerConfig(const ServerConfig& cfg);
     static void validateLocationConfig(const LocationConfig& cfg);
 };
