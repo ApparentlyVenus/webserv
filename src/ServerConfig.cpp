@@ -80,7 +80,7 @@ bool ServerConfig::isValid() const {
         return false;
     
     for (size_t i = 0; i < ports.size(); i++) {
-        if (ports.at(i) <= 0 || ports.at(i) >= 65535)
+        if (ports.at(i) <= 0 || ports.at(i) > 65535)
             return false;
     }
 
