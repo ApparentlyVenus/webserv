@@ -40,7 +40,6 @@ class LocationConfig {
     LocationConfig& operator=(const LocationConfig& other);
     ~LocationConfig();
 
-
     std::string getPath() const;
     std::vector<std::string> getAllowedMethods() const;
     std::string getRoot() const;
@@ -48,6 +47,17 @@ class LocationConfig {
     std::string getUploadStore() const;
     std::vector<std::string> getCgiExtensions() const;
     std::string getCgiPath() const;
+
+    void setPath(const std::string& path);
+    void addAllowedMethod(const std::string& method);
+    void setRoot(const std::string& root);
+    void setAutoIndex(bool enable);
+    void setIndex(const std::string& idx);
+    void setRedirect(const std::string& url, int code);
+    void setUploadEnable(bool enable);
+    void setUploadStore(const std::string& store);
+    void addCgiExtension(const std::string& ext);
+    void setCgiPath(const std::string& path);
 
     bool hasRedirect() const;
     std::string getRedirect() const;

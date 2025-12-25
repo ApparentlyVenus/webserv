@@ -85,7 +85,7 @@ bool LocationConfig::isMethodAllowed(const std::string& method) const {
     if (allowedMethods.empty())
         return true;
 
-    for (int i = 0; i < allowedMethods.size(); i++) {
+    for (size_t i = 0; i < allowedMethods.size(); i++) {
         if (method == allowedMethods[i])
             return true;
     }
@@ -129,4 +129,45 @@ bool LocationConfig::isValid() const {
         return false;
     
     return true;
+}
+
+void LocationConfig::setPath(const std::string& p) {
+    path = p;
+}
+
+void LocationConfig::addAllowedMethod(const std::string& method) {
+    allowedMethods.push_back(method);
+}
+
+void LocationConfig::setRoot(const std::string& r) {
+    root = r;
+}
+
+void LocationConfig::setAutoIndex(bool enable) {
+    autoIndex = enable;
+}
+
+void LocationConfig::setIndex(const std::string& idx) {
+    index = idx;
+}
+
+void LocationConfig::setRedirect(const std::string& url, int code) {
+    redirect = url;
+    redirectCode = code;
+}
+
+void LocationConfig::setUploadEnable(bool enable) {
+    uploadEnable = enable;
+}
+
+void LocationConfig::setUploadStore(const std::string& store) {
+    uploadStore = store;
+}
+
+void LocationConfig::addCgiExtension(const std::string& ext) {
+    cgiExtension.push_back(ext);
+}
+
+void LocationConfig::setCgiPath(const std::string& p) {
+    cgiPath = p;
 }

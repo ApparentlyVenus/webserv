@@ -92,3 +92,31 @@ bool ServerConfig::isValid() const {
     
     return true;
 }
+
+void ServerConfig::setPort(int p) {
+    port = p;
+}
+
+void ServerConfig::setIP(const std::string& i) {
+    ip = i;
+}
+
+void ServerConfig::setServerName(const std::string& name) {
+    serverName = name;
+}
+
+void ServerConfig::setRoot(const std::string& r) {
+    root = r;
+}
+
+void ServerConfig::setClientMaxBodySize(int size) {
+    clientMaxBodySize = size;
+}
+
+void ServerConfig::addErrorPage(int code, const std::string& path) {
+    errorPages[code] = path;
+}
+
+void ServerConfig::addLocation(const LocationConfig& loc) {
+    locations.push_back(loc);
+}

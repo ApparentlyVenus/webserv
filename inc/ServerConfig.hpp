@@ -42,6 +42,14 @@ class ServerConfig {
     std::string getRoot() const;
     int getClientMaxBodySize() const;
 
+    void setPort(int port);
+    void setIP(const std::string& ip);
+    void setServerName(const std::string& name);
+    void setRoot(const std::string& root);
+    void setClientMaxBodySize(int size);
+    void addErrorPage(int code, const std::string& path);
+    void addLocation(const LocationConfig& loc);
+
     bool hasErrorPage(int errorCode) const;
     std::string getErrorPage(int errorCode) const;
 
