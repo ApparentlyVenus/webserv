@@ -21,7 +21,7 @@
 class ServerConfig {
     private:
 
-    int port;
+    std::vector<int> ports;
     std::string ip;
     std::string serverName;
     std::string root;
@@ -36,13 +36,13 @@ class ServerConfig {
     ServerConfig& operator=(const ServerConfig& other);
     ~ServerConfig();
 
-    int getPort() const;
+    std::vector<int> getPorts() const;
     std::string getIP() const;
     std::string getServerName() const;
     std::string getRoot() const;
     int getClientMaxBodySize() const;
 
-    void setPort(int port);
+    void addPort(int port);
     void setIP(const std::string& ip);
     void setServerName(const std::string& name);
     void setRoot(const std::string& root);

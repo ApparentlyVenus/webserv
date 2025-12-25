@@ -1,16 +1,16 @@
 #include "ServerConfig.hpp"
 
-ServerConfig::ServerConfig() : port(8080), ip("0.0.0.0"), serverName(""), 
+ServerConfig::ServerConfig() : ip("0.0.0.0"), serverName(""), 
                                root("./www"), clientMaxBodySize(1048576) {}
 
 ServerConfig::ServerConfig(const ServerConfig& other) 
-    : port(other.port), ip(other.ip), serverName(other.serverName),
+    : ports(other.ports), ip(other.ip), serverName(other.serverName),
       root(other.root), clientMaxBodySize(other.clientMaxBodySize),
       errorPages(other.errorPages), locations(other.locations) {}
 
 ServerConfig& ServerConfig::operator=(const ServerConfig& other) {
     if (this != &other) {
-        port = other.port;
+        ports = other.ports;
         ip = other.ip;
         serverName = other.serverName;
         root = other.root;
@@ -23,8 +23,8 @@ ServerConfig& ServerConfig::operator=(const ServerConfig& other) {
 
 ServerConfig::~ServerConfig() {}
 
-int ServerConfig::getPort() const {
-    return port;
+std::vector<int> ServerConfig::getPorts() const {
+    return ports;
 }
 
 std::string ServerConfig::getIP() const {
@@ -76,9 +76,14 @@ std::vector<LocationConfig> ServerConfig::getLocations() const {
 }
 
 bool ServerConfig::isValid() const {
-    if (port <= 0 || port > 65535)
+    if (ports.empty())
         return false;
     
+    for (size_t i = 0; i < ports.size(); i++) {
+        if (ports.at(i) <= 0 || ports.at(i) >= 65535)
+            return false;
+    }
+
     if (root.empty())
         return false;
     
@@ -93,8 +98,8 @@ bool ServerConfig::isValid() const {
     return true;
 }
 
-void ServerConfig::setPort(int p) {
-    port = p;
+void ServerConfig::addPort(int p) {
+    ports.push_back(p);
 }
 
 void ServerConfig::setIP(const std::string& i) {
