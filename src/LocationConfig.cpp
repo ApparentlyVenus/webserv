@@ -1,6 +1,38 @@
 #include "LocationConfig.hpp"
 #include "ServerConfig.hpp"
 
+LocationConfig::LocationConfig() 
+    : path(""), root(""), autoIndex(false), index("index.html"),
+      redirect(""), redirectCode(0), uploadEnable(false), 
+      uploadStore(""), cgiPath("") {}
+
+LocationConfig::LocationConfig(const LocationConfig& other)
+    : path(other.path), allowedMethods(other.allowedMethods),
+      root(other.root), autoIndex(other.autoIndex), index(other.index),
+      redirect(other.redirect), redirectCode(other.redirectCode),
+      uploadEnable(other.uploadEnable), uploadStore(other.uploadStore),
+      cgiExtension(other.cgiExtension), cgiPath(other.cgiPath) {}
+
+LocationConfig& LocationConfig::operator=(const LocationConfig& other) {
+    if (this != &other) {
+        path = other.path;
+        allowedMethods = other.allowedMethods;
+        root = other.root;
+        autoIndex = other.autoIndex;
+        index = other.index;
+        redirect = other.redirect;
+        redirectCode = other.redirectCode;
+        uploadEnable = other.uploadEnable;
+        uploadStore = other.uploadStore;
+        cgiExtension = other.cgiExtension;
+        cgiPath = other.cgiPath;
+    }
+    return *this;
+}
+
+LocationConfig::~LocationConfig() {}
+
+
 std::string LocationConfig::getPath() const {
     return path;
 }

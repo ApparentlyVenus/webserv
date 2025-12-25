@@ -31,6 +31,11 @@ class ServerConfig {
 
     public:
 
+    ServerConfig();
+    ServerConfig(const ServerConfig& other);
+    ServerConfig& operator=(const ServerConfig& other);
+    ~ServerConfig();
+
     int getPort() const;
     std::string getIP() const;
     std::string getServerName() const;

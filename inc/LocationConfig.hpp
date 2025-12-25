@@ -35,6 +35,12 @@ class LocationConfig {
 
     public:
     
+    LocationConfig();
+    LocationConfig(const LocationConfig& other);
+    LocationConfig& operator=(const LocationConfig& other);
+    ~LocationConfig();
+
+
     std::string getPath() const;
     std::vector<std::string> getAllowedMethods() const;
     std::string getRoot() const;
