@@ -48,7 +48,7 @@ bool Parser::isAtEnd() const {
 Token Parser::expect(TokenType type) {
     Token cur = peek();
     if (cur.type != type)
-        throw std::runtime_error("unexpected token");
+        throw std::runtime_error("unexpected token"); // will become a proper exception
     return consume();
 }
 
@@ -56,7 +56,7 @@ ServerBlock Parser::parseServer() {
     Token server = expect(WORD);
 
     if (server.val != "server")
-        throw std::runtime_error("expected server token");
+        throw std::runtime_error("expected server token"); // unexpect token exception as well
 
     Token open = expect(OPEN_BRACE);
 
@@ -77,7 +77,7 @@ LocationBlock Parser::parseLocation() {
     Token location = expect(WORD);
 
     if (location.val != "location")
-        throw std::runtime_error("expected location token");
+        throw std::runtime_error("expected location token"); // unexpected token exception
     
     Token path = expect(WORD);
     Token open = expect(OPEN_BRACE);

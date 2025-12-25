@@ -41,13 +41,12 @@ class Parser {
     std::vector<Token> tokens;
     size_t pos;
 
-
     public:
     Parser();
     Parser(const std::vector<Token>& tokens);
     Parser(const Parser& other);
     Parser& operator=(const Parser& other);
-
+    ~Parser();
 
     ServerBlock parseServer();
     LocationBlock parseLocation();
