@@ -55,38 +55,48 @@ Token Parser::expect(TokenType type) {
 ServerBlock Parser::parseServer() {
     Token server = expect(WORD);
 
-    if (server.val == "server") {
-        Token open = expect(OPEN_BRACE);
-        Token cur = open;
+    if (server.val != "server")
+        throw std::runtime_error("expected server token");
 
-        std::vector<Directive> directives;
-        while (cur.val != "location")
-            directives.push_back(parseDirective());
-        
-        std::vector<LocationBlock> locations;
-        while (cur.val == "location")
+    Token open = expect(OPEN_BRACE);
+
+    std::vector<Directive> directives;
+    std::vector<LocationBlock> locations;
+    while (!isAtEnd() && peek().type != CLOSE_BRACE) {
+        if (peek().type == WORD && peek().val == "location")
             locations.push_back(parseLocation());
-        
-        Token close = expect(CLOSE_BRACE);
+        else
+            directives.push_back(parseDirective());
     }
-    return ServerBlock(server, open, directives, locations, close);
 
+    Token close = expect(CLOSE_BRACE);
+    return ServerBlock(server, open, directives, locations, close);
 }
 
 LocationBlock Parser::parseLocation() {
-    Token location = consume();
-    if (location.val == "locaion") {
-        Token path = expect(WORD);
-        Token open = expect(OPEN_BRACE);
-        Token cur = open;
+    Token location = expect(WORD);
 
-        std::vector<Directive> directives;
-        while (cur.type == WORD)
-            directives.push_back(parseDirective())
-        
-        Token close = expect(CLOSE_BRACE);
-    }
+    if (location.val != "location")
+        throw std::runtime_error("expected location token");
+    
+    Token path = expect(WORD);
+    Token open = expect(OPEN_BRACE);
 
+    std::vector<Directive> directives;
+    while (!isAtEnd() && peek().type != CLOSE_BRACE)
+        directives.push_back(parseDirective());
 
-    return LocationBlock();
+    Token close = expect(CLOSE_BRACE);
+    return LocationBlock(location, path, open, directives, close);
+}
+
+Directive Parser::parseDirective() {
+    Token key = expect(WORD);
+
+    std::vector<Token> values;
+    while(!isAtEnd() && peek().type != SEMICOLON)
+        values.push_back(expect(WORD));
+
+    Token semiColon = expect(SEMICOLON);
+    return Directive(key, values, semiColon);
 }
