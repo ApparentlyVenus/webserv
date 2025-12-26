@@ -1,42 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Request.hpp                                        :+:      :+:    :+:   */
+/*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/25 19:57:31 by yitani            #+#    #+#             */
-/*   Updated: 2025/12/26 21:57:35 by yitani           ###   ########.fr       */
+/*   Created: 2025/12/26 21:52:09 by yitani            #+#    #+#             */
+/*   Updated: 2025/12/26 22:19:09 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef REQUEST_HPP
-# define REQUEST_HPP
+#ifndef RESPONSE_HPP
+# define RESPONSE_HPP
 
 # include <string>
 # include <map>
-# include "../inc/StringUtils.hpp"
+# include "Request.hpp"
+# include "LocationConfig.hpp"
+# include "FileUtils.hpp"
 
-enum parsingState
-{
-	COMPLETE,
-	INCOMPLETE,
-	ERROR
-};
-
-class Request
+class Response
 {
 	public:
-		std::string method;
-		std::string path;
-		std::string query;
-		std::string version;
+		int statusCode;
 		std::map<std::string, std::string> headers;
 		std::string body;
-		parsingState state;
-		int errorCode;
 
-		static Request parse(const std::string &buffer, size_t maxBodySize);
+		static std::string format(const Response &res);
+		static std::string getReasonPhrase(int statusCode);
 };
 
 #endif
