@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/18 21:16:52 by odana             #+#    #+#             */
-/*   Updated: 2025/12/23 13:30:22 by yitani           ###   ########.fr       */
+/*   Created: 2025/12/25 19:57:31 by yitani            #+#    #+#             */
+/*   Updated: 2025/12/25 21:55:17 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,35 +14,29 @@
 # define REQUEST_HPP
 
 # include <string>
-# include <cstdlib>
 # include <map>
-# include <vector>
 # include "../inc/StringUtils.hpp"
 
-enum parsingState {
-    COMPLETE,
-    INCOMPLETE,
-    ERROR,
+enum parsingState
+{
+	COMPLETE,
+	INCOMPLETE,
+	ERROR
 };
 
-struct Request {
-    std::string method;
-    std::string version;
-    std::string path;
-    std::string query;
-    std::string body;
-    std::map<std::string, std::string> headers;
-    parsingState state;
-    int errorCode;
+class Request
+{
+	public:
+		std::string method;
+		std::string path;
+		std::string query;
+		std::string version;
+		std::map<std::string, std::string> headers; // All headers: headers["host"] = "localhost:8080"
+		std::string body;							// Request body (POST data, file uploads)
+		parsingState state;							// COMPLETE, INCOMPLETE, or ERROR
+		int errorCode;								// HTTP error code if state is ERROR (400, 413, etc.)
 
-    static Request parse(const std::string& raw, size_t maxBodySize);
+		static Request parse(const std::string &buffer, size_t maxBodySize);
 };
-
-static std::vector<std::string> parseRequestLine(const std::string& raw);
-static std::map<std::string, std::string> parseHeaders(const std::string& raw);
-static void splitPathAndQuery(const std::string& fullPath, std::string& path, std::string& query);
-static std::string toLower(const std::string& str);
-static std::string trim(const std::string& str);
-static bool isValid(Request& req, size_t maxBodySize);
 
 #endif

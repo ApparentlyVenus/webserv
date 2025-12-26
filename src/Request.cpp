@@ -5,161 +5,116 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/18 21:20:56 by odana             #+#    #+#             */
-/*   Updated: 2025/12/23 13:07:44 by yitani           ###   ########.fr       */
+/*   Created: 2025/12/25 20:41:56 by yitani            #+#    #+#             */
+/*   Updated: 2025/12/26 17:01:10 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Request.hpp"
+#include "../inc/Request.hpp"
 
-Request Request::parse(const std::string& raw, size_t maxBodySize) {
-    Request req;
-    req.errorCode = 0;
-    req.state = INCOMPLETE;
+Request Request::parse(const std::string &buffer, size_t maxBodySize)
+{
+	Request req;
 
-    size_t firstSep = raw.find("\r\n");
-    if (firstSep == std::string::npos) {
-        req.state = INCOMPLETE;
-        return req;
-    }
-    
-    std::string requestLineRaw = raw.substr(0, firstSep);
-    std::vector<std::string> requestLineParsed = parseRequestLine(requestLineRaw);
-    
-    if (requestLineParsed.size() != 3) {
-        req.state = ERROR;
-        req.errorCode = 400;
-        return req;
-    }
+	// the end of the request is marked by "\r\n\r\n"
+	if (buffer.find("\r\n\r\n") == std::string::npos)
+	{
+		req.state = parsingState::INCOMPLETE;
+		return (req);
+	}
 
-    req.method = requestLineParsed[0];
-    splitPathAndQuery(requestLineParsed[1], req.path, req.query);
-    req.version = requestLineParsed[2];
-    
-    size_t headerSep = raw.find("\r\n\r\n");
-    if (headerSep == std::string::npos) {
-        req.state = INCOMPLETE;
-        return req;
-    }
-    
-    std::string headerRaw = raw.substr(firstSep + 2, headerSep - (firstSep + 2));
-    req.headers = parseHeaders(headerRaw);
+	// extract first string
+	std::string temp = buffer.substr(0, buffer.find("\r\n"));
 
-    req.body = raw.substr(headerSep + 4);
-    if (req.headers.find("content-length") != req.headers.end()) {
-        int contentLength = std::atoi(req.headers["content-length"].c_str());
-        
-        if (req.body.size() < static_cast<size_t>(contentLength)) {
-            req.state = INCOMPLETE;
-            return req;
-        }
-        req.body = req.body.substr(0, contentLength);
-    }
-    
-    if (!isValid(req, maxBodySize)) {
-        req.state = ERROR;
-        return req;
-    }
+	// first string should contain 3 parts (method, path+query, HTTP version)
+	std::vector<std::string> splittedString = split(temp, ' ');
+	if (splittedString.size() != 3)
+	{
+		req.errorCode = 400;
+		req.state = parsingState::ERROR;
+		return (req);
+	}
 
-    req.state = COMPLETE;
-    return req;
-    
-}
+	// extract method
+	req.method = splittedString[0];
+	if (req.method != "GET" && req.method != "POST" && req.method != "DELETE")
+	{
+		req.errorCode = 501;
+		req.state = parsingState::ERROR;
+		return (req);
+	}
 
-bool isValid(Request& req, size_t maxBodySize) {
-    if (req.method != "GET" && req.method != "POST" && req.method != "DELETE") {
-        req.errorCode = 501;
-        return false;
-    }
-    
-    if (req.version != "HTTP/1.1") {
-        req.errorCode = 505;
-        return false;
-    }
-    
-    if (req.path.length() > 2048) {
-        req.errorCode = 414;
-        return false;
-    }
-    
-    if (req.path.find("../") != std::string::npos) {
-        req.errorCode = 400;
-        return false;
-    }
-    
-    if (req.headers.find("host") == req.headers.end()) {
-        req.errorCode = 400;
-        return false;
-    }
-    
-    if (req.body.size() > maxBodySize) {
-        req.errorCode = 413;
-        return false;
-    }
-    
-    return true;
-}
+	// extract path and query
+	std::vector<std::string> splittedPath = split(splittedString[1], '?');
+	req.path = splittedPath[0];
+	if (splittedPath.size() == 2)
+		req.query = splittedPath[1];
 
-std::vector<std::string> parseRequestLine(const std::string& raw) {
-    std::vector<std::string> tokens;
-    std::string token;
-    
-    for (size_t i = 0; i < raw.size(); i++) {
-        if (std::isspace(raw[i])) {
-            if (!token.empty()) {
-                tokens.push_back(token);
-                token.clear();
-            }
-        } else {
-            token += raw[i];
-        }
-    }
-    
-    if (!token.empty()) {
-        tokens.push_back(token);
-    }
-    
-    return tokens;
-}
+	// extract HTTP version
+	req.version = splittedString[2];
 
-std::map<std::string, std::string> parseHeaders(const std::string& raw) {
-    std::map<std::string, std::string> headers;
-    size_t pos = 0;
-    
-    while (pos < raw.size()) {
-        size_t lineEnd = raw.find("\r\n", pos);
-        if (lineEnd == std::string::npos) {
-            lineEnd = raw.size();
-        }
-        
-        std::string line = raw.substr(pos, lineEnd - pos);
-        
-        size_t colonPos = line.find(':');
-        if (colonPos != std::string::npos) {
-            std::string key = line.substr(0, colonPos);
-            std::string value = line.substr(colonPos + 1);
-            
-            key = trim(key);
-            value = trim(value);
-            key = toLower(key);
-            
-            headers[key] = value;
-        }
-        
-        pos = lineEnd + 2;
-    }
-    
-    return headers;
-}
+	// extract rest until the end of request and before Body if it exists
+	std::string headerString = buffer.substr(buffer.find("\r\n") + 2, buffer.find("\r\n\r\n") - (buffer.find("\r\n") + 2));
+	std::vector<std::string> splitHeaders = split(headerString, '\n');
+	for (size_t i = 0; i < splitHeaders.size(); i++)
+	{
+		size_t colon = splitHeaders[i].find(':');
+		if (colon != std::string::npos)
+		{
+			std::string key = splitHeaders[i].substr(0, colon);
+			std::string value = splitHeaders[i].substr(colon + 1);
+			req.headers[toLower(trim(key))] = trim(value);
+		}
+	}
 
-void splitPathAndQuery(const std::string& fullPath, std::string& path, std::string& query) {
-    size_t queryPos = fullPath.find('?');
-    
-    if (queryPos != std::string::npos) {
-        path = fullPath.substr(0, queryPos);
-        query = fullPath.substr(queryPos + 1);
-    } else {
-        path = fullPath;
-        query = "";
-    }
+	// if version is different than HTTP 1.1 -ERROR- (changeable depending on what we end up choosing)
+	if (req.version != "HTTP/1.1")
+	{
+		req.errorCode = 505;
+		req.state = parsingState::ERROR;
+		return (req);
+	}
+
+	// max path lenght is 2 Kilo bytes
+	if (req.path.length() > 2048)
+	{
+		req.errorCode = 414;
+		req.state = parsingState::ERROR;
+		return (req);
+	}
+
+	// if host not found then error
+	if (req.headers.find("host") == req.headers.end())
+	{
+		req.errorCode = 400;
+		req.state = parsingState::ERROR;
+		return (req);
+	}
+
+	if (req.headers.find("content-length") != req.headers.end())
+	{
+		int contentLength = std::atoi(req.headers["content-length"].c_str());
+
+		std::string body = buffer.substr(buffer.find("\r\n\r\n") + 4);
+
+		// if the body exceeds max body size error
+		if (body.length() > maxBodySize || (size_t)contentLength > maxBodySize)
+		{
+			req.errorCode = 413;
+			req.state = parsingState::ERROR;
+			return (req);
+		}
+
+		// if body size less then content lenght then incomplete
+		if (body.length() < (size_t)contentLength)
+		{
+			req.state = parsingState::INCOMPLETE;
+			return (req);
+		}
+
+		req.body = body.substr(0, contentLength);
+	}
+
+	req.state = parsingState::COMPLETE;
+	return (req);
 }
