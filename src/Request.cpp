@@ -3,14 +3,46 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
+/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/25 20:41:56 by yitani            #+#    #+#             */
-/*   Updated: 2025/12/26 19:10:14 by odana            ###   ########.fr       */
+/*   Updated: 2025/12/26 21:27:29 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Request.hpp"
+
+static std::string	normalizePath(std::string &path)
+{
+	std::vector<std::string>	results;
+	std::vector<std::string>	segments = split(path, '/');
+	
+	for (size_t i = 0; i < segments.size(); i++)
+	{
+		std::string seg = segments[i];
+		
+		if (seg == "." || seg == "")
+			continue;
+		else if (seg == "..")
+		{
+			if (!results.empty())
+				results.pop_back();
+		}
+		else
+			results.push_back(seg);
+	}
+	
+	std::string	normalized = "/";
+	
+	for (size_t i = 0; i < results.size(); i++)
+	{
+		normalized += results[i];
+		if (i < results.size() - 1)
+			normalized += "/";
+	}
+
+	return (normalized);
+}
 
 Request Request::parse(const std::string &buffer, size_t maxBodySize)
 {
@@ -46,7 +78,7 @@ Request Request::parse(const std::string &buffer, size_t maxBodySize)
 
 	// extract path and query
 	std::vector<std::string> splittedPath = split(splittedString[1], '?');
-	req.path = splittedPath[0];
+	req.path = normalizePath(splittedPath[0]);
 	if (splittedPath.size() == 2)
 		req.query = splittedPath[1];
 
