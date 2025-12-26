@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StringUtils.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
+/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/23 13:07:51 by yitani            #+#    #+#             */
-/*   Updated: 2025/12/23 14:40:02 by yitani           ###   ########.fr       */
+/*   Updated: 2025/12/26 19:11:31 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ int toInt(const std::string& str) {
     std::stringstream ss(str);
     
     if (!(ss >> num) || !ss.eof())
-        throw std::runtime_error("invlaid interger " + str);
+        throw std::runtime_error("invalid interger " + str);
     return num;
 }
 

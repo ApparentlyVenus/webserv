@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ConfigFactory.cpp                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/26 19:05:00 by odana             #+#    #+#             */
+/*   Updated: 2025/12/26 19:05:36 by odana            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../inc/ConfigFactory.hpp"
 
 ConfigFactory::ConfigFactory() {}
@@ -96,10 +108,20 @@ void ConfigFactory::processLocationDirective(LocationConfig& config, const Direc
             config.addCgiExtension(dir.values[i].val);
         }
     }
-    else if (key == "cgi_path") {
+    else if (key == "cgi_py") {
         if (dir.values.size() != 1)
-            throw std::runtime_error("cgi_path directive requires exactly one value");
-        config.setCgiPath(dir.values[0].val);
+            throw std::runtime_error("cgi_py directive requires exactly one value");
+        config.setCgiPy(dir.values[0].val);
+    }
+    else if (key == "cgi_php") {
+        if (dir.values.size() != 1)
+            throw std::runtime_error("cgi_php directive requires exactly one value");
+        config.setCgiPhp(dir.values[0].val);
+    }
+    else if (key == "cgi_pl") {
+        if (dir.values.size() != 1)
+            throw std::runtime_error("cgi_pl directive requires exactly one value");
+        config.setCgiPl(dir.values[0].val);
     }
     else {
         throw std::runtime_error("Unknown location directive: " + key);

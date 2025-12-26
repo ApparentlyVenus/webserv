@@ -14,7 +14,8 @@ SRCS = $(SRC_DIR)/main.cpp \
        $(SRC_DIR)/LocationConfig.cpp \
        $(SRC_DIR)/StringUtils.cpp \
        $(SRC_DIR)/FileUtils.cpp \
-       $(SRC_DIR)/Logger.cpp
+       $(SRC_DIR)/Logger.cpp \
+       $(SRC_DIR)/ConfigFactory.cpp
 
 OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 

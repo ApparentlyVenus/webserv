@@ -6,7 +6,7 @@
 /*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/22 09:10:13 by odana             #+#    #+#             */
-/*   Updated: 2025/12/22 10:17:00 by odana            ###   ########.fr       */
+/*   Updated: 2025/12/26 19:00:14 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,9 @@ class LocationConfig {
     bool uploadEnable;
     std::string uploadStore;
     std::vector<std::string> cgiExtension;
-    std::string cgiPath;
+    std::string cgiPy;
+    std::string cgiPhp;
+    std::string cgiPl;
 
     public:
     
@@ -46,7 +48,10 @@ class LocationConfig {
     std::string getIndex() const;
     std::string getUploadStore() const;
     std::vector<std::string> getCgiExtensions() const;
-    std::string getCgiPath() const;
+    std::string getCgiPy() const;
+    std::string getCgiPhp() const;
+    std::string getCgiPl() const;
+    std::string getCgiInterpreter(const std::string& extension) const;
 
     void setPath(const std::string& path);
     void addAllowedMethod(const std::string& method);
@@ -57,8 +62,10 @@ class LocationConfig {
     void setUploadEnable(bool enable);
     void setUploadStore(const std::string& store);
     void addCgiExtension(const std::string& ext);
-    void setCgiPath(const std::string& path);
-
+    void setCgiPy(const std::string& path);
+    void setCgiPl(const std::string& path);
+    void setCgiPhp(const std::string& path);
+    
     bool hasRedirect() const;
     std::string getRedirect() const;
     int getRedirectCode() const;

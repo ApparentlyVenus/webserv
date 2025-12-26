@@ -1,17 +1,29 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   LocationConfig.cpp                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/26 19:05:08 by odana             #+#    #+#             */
+/*   Updated: 2025/12/26 19:05:35 by odana            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "LocationConfig.hpp"
 #include "ServerConfig.hpp"
 
 LocationConfig::LocationConfig() 
     : path(""), root(""), autoIndex(false), index("index.html"),
       redirect(""), redirectCode(0), uploadEnable(false), 
-      uploadStore(""), cgiPath("") {}
+      uploadStore(""), cgiPy(""), cgiPhp(""), cgiPl("") {}
 
 LocationConfig::LocationConfig(const LocationConfig& other)
     : path(other.path), allowedMethods(other.allowedMethods),
       root(other.root), autoIndex(other.autoIndex), index(other.index),
       redirect(other.redirect), redirectCode(other.redirectCode),
       uploadEnable(other.uploadEnable), uploadStore(other.uploadStore),
-      cgiExtension(other.cgiExtension), cgiPath(other.cgiPath) {}
+      cgiExtension(other.cgiExtension), cgiPy(other.cgiPy), cgiPhp(other.cgiPhp), cgiPl(other.cgiPl) {}
 
 LocationConfig& LocationConfig::operator=(const LocationConfig& other) {
     if (this != &other) {
@@ -25,7 +37,9 @@ LocationConfig& LocationConfig::operator=(const LocationConfig& other) {
         uploadEnable = other.uploadEnable;
         uploadStore = other.uploadStore;
         cgiExtension = other.cgiExtension;
-        cgiPath = other.cgiPath;
+        cgiPy = other.cgiPy;
+        cgiPl = other.cgiPl;
+        cgiPhp = other.cgiPhp;
     }
     return *this;
 }
@@ -57,8 +71,16 @@ std::vector<std::string> LocationConfig::getCgiExtensions() const {
     return cgiExtension;
 }
 
-std::string LocationConfig::getCgiPath() const {
-    return cgiPath;
+std::string LocationConfig::getCgiPy() const {
+    return cgiPy;
+}
+
+std::string LocationConfig::getCgiPhp() const {
+    return cgiPhp;
+}
+
+std::string LocationConfig::getCgiPl() const {
+    return cgiPl;
 }
 
 bool LocationConfig::hasRedirect() const {
@@ -122,8 +144,27 @@ bool LocationConfig::isValid() const {
     if (uploadEnable && uploadStore.empty())
         return false;
     
-    if (!cgiExtension.empty() && cgiPath.empty())
-        return false;
+    if (!cgiExtension.empty()) {
+        bool hasPy = false;
+        bool hasPhp = false;
+        bool hasPl = false;
+        
+        for (size_t i = 0; i < cgiExtension.size(); i++) {
+            if (cgiExtension[i] == ".py")
+                hasPy = true;
+            if (cgiExtension[i] == ".php")
+                hasPhp = true;
+            if (cgiExtension[i] == ".pl")
+                hasPl = true;
+        }
+        
+        if (hasPy && cgiPy.empty())
+            return false;
+        if (hasPhp && cgiPhp.empty())
+            return false;
+        if (hasPl && cgiPl.empty())
+            return false;
+    }
     
     if (!redirect.empty() && (redirectCode != 301 && redirectCode != 302))
         return false;
@@ -168,6 +209,23 @@ void LocationConfig::addCgiExtension(const std::string& ext) {
     cgiExtension.push_back(ext);
 }
 
-void LocationConfig::setCgiPath(const std::string& p) {
-    cgiPath = p;
+void LocationConfig::setCgiPy(const std::string& p) {
+    cgiPy = p;
+}
+
+void LocationConfig::setCgiPl(const std::string& p) {
+    cgiPl = p;
+}
+void LocationConfig::setCgiPhp(const std::string& p) {
+    cgiPhp = p;
+}
+
+std::string LocationConfig::getCgiInterpreter(const std::string& extension) const {
+    if (extension == ".py")
+        return cgiPy;
+    if (extension == ".php")
+        return cgiPhp;
+    if (extension == ".pl")
+        return cgiPl;
+    return "";
 }
