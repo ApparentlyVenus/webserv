@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/25 20:41:56 by yitani            #+#    #+#             */
-/*   Updated: 2025/12/26 21:27:29 by yitani           ###   ########.fr       */
+/*   Updated: 2025/12/28 20:24:20 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ Request Request::parse(const std::string &buffer, size_t maxBodySize)
 	// the end of the request is marked by "\r\n\r\n"
 	if (buffer.find("\r\n\r\n") == std::string::npos)
 	{
-		req.state = parsingState::INCOMPLETE;
+		req.state = INCOMPLETE;
 		return (req);
 	}
 
@@ -63,7 +63,7 @@ Request Request::parse(const std::string &buffer, size_t maxBodySize)
 	if (splittedString.size() != 3)
 	{
 		req.errorCode = 400;
-		req.state = parsingState::ERROR;
+		req.state = ERROR;
 		return (req);
 	}
 
@@ -72,7 +72,7 @@ Request Request::parse(const std::string &buffer, size_t maxBodySize)
 	if (req.method != "GET" && req.method != "POST" && req.method != "DELETE")
 	{
 		req.errorCode = 501;
-		req.state = parsingState::ERROR;
+		req.state = ERROR;
 		return (req);
 	}
 
@@ -103,7 +103,7 @@ Request Request::parse(const std::string &buffer, size_t maxBodySize)
 	if (req.version != "HTTP/1.1")
 	{
 		req.errorCode = 505;
-		req.state = parsingState::ERROR;
+		req.state = ERROR;
 		return (req);
 	}
 
@@ -111,7 +111,7 @@ Request Request::parse(const std::string &buffer, size_t maxBodySize)
 	if (req.path.length() > 2048)
 	{
 		req.errorCode = 414;
-		req.state = parsingState::ERROR;
+		req.state = ERROR;
 		return (req);
 	}
 
@@ -119,7 +119,7 @@ Request Request::parse(const std::string &buffer, size_t maxBodySize)
 	if (req.headers.find("host") == req.headers.end())
 	{
 		req.errorCode = 400;
-		req.state = parsingState::ERROR;
+		req.state = ERROR;
 		return (req);
 	}
 
@@ -133,20 +133,20 @@ Request Request::parse(const std::string &buffer, size_t maxBodySize)
 		if (body.length() > maxBodySize || (size_t)contentLength > maxBodySize)
 		{
 			req.errorCode = 413;
-			req.state = parsingState::ERROR;
+			req.state = ERROR;
 			return (req);
 		}
 
 		// if body size less then content lenght then incomplete
 		if (body.length() < (size_t)contentLength)
 		{
-			req.state = parsingState::INCOMPLETE;
+			req.state = INCOMPLETE;
 			return (req);
 		}
 
 		req.body = body.substr(0, contentLength);
 	}
 
-	req.state = parsingState::COMPLETE;
+	req.state = COMPLETE;
 	return (req);
 }
