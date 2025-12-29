@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 21:52:09 by yitani            #+#    #+#             */
-/*   Updated: 2025/12/29 13:19:32 by yitani           ###   ########.fr       */
+/*   Updated: 2025/12/29 14:03:57 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ class Response
 		std::string body;
 
 		Response			createResponse(Request &req, const LocationConfig &conf);
-		static std::string	format(const Response &res);
+		static std::string	format(Response &res);
 		static std::string	getReasonPhrase(int statusCode);
 };
 
