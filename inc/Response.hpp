@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 21:52:09 by yitani            #+#    #+#             */
-/*   Updated: 2025/12/26 22:19:09 by yitani           ###   ########.fr       */
+/*   Updated: 2025/12/29 13:19:32 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,12 +22,14 @@
 class Response
 {
 	public:
-		int statusCode;
-		std::map<std::string, std::string> headers;
+		int									statusCode;
+		std::string							fullPath;
+		std::map<std::string, std::string>	headers;
 		std::string body;
 
-		static std::string format(const Response &res);
-		static std::string getReasonPhrase(int statusCode);
+		Response			createResponse(Request &req, const LocationConfig &conf);
+		static std::string	format(const Response &res);
+		static std::string	getReasonPhrase(int statusCode);
 };
 
 #endif
