@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 21:52:09 by yitani            #+#    #+#             */
-/*   Updated: 2025/12/29 14:03:57 by yitani           ###   ########.fr       */
+/*   Updated: 2025/12/29 21:31:15 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include "Request.hpp"
 # include "LocationConfig.hpp"
 # include "FileUtils.hpp"
+# include <cstdio>
 
 class Response
 {

@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/23 13:38:58 by yitani            #+#    #+#             */
-/*   Updated: 2025/12/24 18:05:36 by yitani           ###   ########.fr       */
+/*   Updated: 2025/12/29 20:43:48 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,13 @@ bool	isDirectory(const std::string& path)
 	if (stat(path.c_str(), &buff) != 0)
 		return (false);
 	return (S_ISDIR(buff.st_mode));
+}
+
+bool	isWritable(const std::string &path)
+{
+	if (access(path.c_str(), W_OK) != 0)
+		return (false);
+	return (true);
 }
 
 bool	isReadable(const std::string& path)

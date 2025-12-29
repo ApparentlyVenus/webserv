@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/23 13:34:26 by yitani            #+#    #+#             */
-/*   Updated: 2025/12/26 22:21:57 by yitani           ###   ########.fr       */
+/*   Updated: 2025/12/29 20:44:03 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 
 bool		fileExists(const std::string& path);
 bool		isReadable(const std::string& path);
+bool		isWritable(const std::string &path);
 ssize_t		getFileSize(const std::string& path);
 std::string	readFile(const std::string& path);
 bool		isDirectory(const std::string& path);
