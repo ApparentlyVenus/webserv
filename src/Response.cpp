@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 21:52:35 by yitani            #+#    #+#             */
-/*   Updated: 2025/12/29 21:36:47 by yitani           ###   ########.fr       */
+/*   Updated: 2025/12/29 21:44:53 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ Response Response::createResponse(Request &req, const LocationConfig &conf)
 		res.headers["Connection"] = "close";
 
 	if (req.method == "POST")
-		return (handlePost(req, res));
+		return (handlePost(req, res, conf));
 
 	else if (req.method == "GET")
 		return (handleGet(req, res, conf));
@@ -109,8 +109,19 @@ static Response handleGet(Request &req, Response &res, const LocationConfig &con
 	return (res);
 }
 
-static Response handlePost(Request &req, Response &res)
+static Response handlePost(Request &req, Response &res, const LocationConfig &conf)
 {
+	std::stringstream ss;
+
+	if (!conf.isMethodAllowed("POST"))
+	{
+		res.statusCode = 405;
+		res.headers["Content-Type"] = "text/html";
+		res.body = "<html><body><h1>405 Method Not Allowed</h1></body></html>";
+		ss << res.body.length();
+		res.headers["Content-Length"] = ss.str();
+		return (res);
+	}
 }
 
 static Response handleDelete(Request &req, Response &res, const LocationConfig &conf)
