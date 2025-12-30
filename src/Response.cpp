@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 21:52:35 by yitani            #+#    #+#             */
-/*   Updated: 2025/12/30 17:56:44 by yitani           ###   ########.fr       */
+/*   Updated: 2025/12/30 17:57:12 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,7 @@ static Response handleGet(Request &req, Response &res, const LocationConfig &con
 
 		// @youssef : i will implement this later when i finish the whole structure
 		// BRO KTIR MA ELE JLEDE
+		// hadan yaamela 3anne
 		if (conf.isAutoIndex())
 		{
 			res.statusCode = 200;
