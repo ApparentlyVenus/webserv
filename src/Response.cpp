@@ -6,13 +6,13 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 21:52:35 by yitani            #+#    #+#             */
-/*   Updated: 2025/12/30 17:57:12 by yitani           ###   ########.fr       */
+/*   Updated: 2025/12/30 17:59:24 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Response.hpp"
 
-Response Response::createResponse(Request &req, const LocationConfig &conf)
+Response Response::createExecuteResponse(Request &req, const LocationConfig &conf)
 {
 	Response res;
 
