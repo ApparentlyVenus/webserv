@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/31 19:11:29 by yitani            #+#    #+#             */
-/*   Updated: 2025/12/31 19:12:32 by yitani           ###   ########.fr       */
+/*   Updated: 2025/12/31 20:02:26 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,20 +60,43 @@ Response	GetSuccess(Response &res, const std::string& filepath)
 	return (res);
 }
 
-
-/* @youssef : i will implement this later when i finish the whole structure
-BRO KTIR MA ELE JLEDE
-hadan yaamela 3anne */
-Response	DirListing(Response &res)
+Response	DirListing(Response &res, std::string	ReqPath)
 {
 	std::stringstream	ss;
+	DIR					*dir = opendir(res.fullPath.c_str());
+	if (dir == NULL)
+		return InternalServerError(res);
+	struct dirent		*entry;
 
+	ss << "<html><head><title>Index of " << ReqPath << "</title></head>";
+	ss << "<body><h1>Index of " << ReqPath << "</h1>";
+	ss << "<ul>";
+	while (true)
+	{
+		entry = readdir(dir);
+		if (entry == NULL)
+			break ;
+
+		std::string	temp = entry->d_name;
+
+		if (temp == "." || temp == "..")
+			continue;
+
+		if (isDirectory(res.fullPath + "/" + temp))
+			temp += "/";
+		ss << "<li><a href=\"" << temp << "\">" << temp << "</a></li>";
+	}
+	ss << "</ul></body></html>";
+
+	res.body = ss.str();
+	closedir(dir);
+	ss.str("");
+	ss.clear();
 	res.statusCode = 200;
-	res.body = "<html><body><h1>Directory listing not yet implemented</h1></body></html>";
 	res.headers["Content-Type"] = "text/html";
 	ss << res.body.length();
 	res.headers["Content-Length"] = ss.str();
-	return res;
+	return (res);
 }
 
 Response	InternalServerError(Response &res)

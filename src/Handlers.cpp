@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/31 17:38:32 by yitani            #+#    #+#             */
-/*   Updated: 2025/12/31 19:10:58 by yitani           ###   ########.fr       */
+/*   Updated: 2025/12/31 19:52:40 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ Response Handlers::handleGet(Request &req, Response &res, const LocationConfig &
 			return (GetSuccess(res, indexPath));
 
 		if (conf.isAutoIndex())
-			return (DirListing(res));
+			return (DirListing(res, req.path));
 
 		return (Forbidden(res));
 	}
