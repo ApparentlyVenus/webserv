@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
+/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/22 09:10:20 by odana             #+#    #+#             */
-/*   Updated: 2025/12/22 10:22:30 by odana            ###   ########.fr       */
+/*   Updated: 2025/12/31 19:16:20 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,8 @@
 # include <map>
 # include "LocationConfig.hpp"
 
-class ServerConfig {
+class ServerConfig
+{
     private:
 
     std::vector<int> ports;
