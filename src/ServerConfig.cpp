@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ServerConfig.hpp"
+#include "../inc/ServerConfig.hpp"
 
 ServerConfig::ServerConfig() : ip("0.0.0.0"), serverName(""), 
                                root("./www"), clientMaxBodySize(1048576) {}

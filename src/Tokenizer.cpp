@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Tokenizer.hpp"
+#include "../inc/Tokenizer.hpp"
 
 Token::Token(TokenType type) : type(type), val("") {}
 

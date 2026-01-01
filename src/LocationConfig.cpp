@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "LocationConfig.hpp"
-#include "ServerConfig.hpp"
+#include "../inc/LocationConfig.hpp"
+#include "../inc/ServerConfig.hpp"
 
 LocationConfig::LocationConfig() 
     : path(""), root(""), autoIndex(false), index("index.html"),

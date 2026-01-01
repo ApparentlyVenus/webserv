@@ -11,11 +11,11 @@
 /* ************************************************************************** */
 
 #include <iostream>
-#include "Tokenizer.hpp"
-#include "Parser.hpp"
-#include "ConfigFactory.hpp"
-#include "FileUtils.hpp"
-#include "Logger.hpp"
+#include "../inc/Tokenizer.hpp"
+#include "../inc/Parser.hpp"
+#include "../inc/ConfigFactory.hpp"
+#include "../inc/FileUtils.hpp"
+#include "../inc/Logger.hpp"
 
 void printServerConfig(const ServerConfig& cfg) {
     std::cout << "\n=== SERVER CONFIG ===" << std::endl;
