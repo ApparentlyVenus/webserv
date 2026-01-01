@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parser.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
+/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 19:04:45 by odana             #+#    #+#             */
-/*   Updated: 2025/12/26 19:04:46 by odana            ###   ########.fr       */
+/*   Updated: 2026/01/02 00:44:07 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,61 +18,63 @@
 # include "Tokenizer.hpp"
 # include <stdexcept>
 
-struct Directive {
-    Token key;
-    std::vector<Token> values;
-    Token semiColon;
+struct Directive
+{
+	Token key;
+	std::vector<Token> values;
+	Token semiColon;
 
-    Directive(Token key, std::vector<Token> values, Token semiColon);
+	Directive(Token key, std::vector<Token> values, Token semiColon);
 };
 
-struct LocationBlock {
-    Token location;
-    Token path;
-    Token openBrace;
-    std::vector<Directive> directives;
-    Token closeBrace;
+struct LocationBlock
+{
+	Token location;
+	Token path;
+	Token openBrace;
+	std::vector<Directive> directives;
+	Token closeBrace;
 
-    LocationBlock(Token location, Token path, Token open, std::vector<Directive> directives, Token close);
-
+	LocationBlock(Token location, Token path, Token open, std::vector<Directive> directives, Token close);
 };
 
-struct ServerBlock {
-    Token server;
-    Token openBrace;
-    std::vector<Directive> directives;
-    std::vector<LocationBlock> locations;
-    Token closeBrace;
+struct ServerBlock
+{
+	Token server;
+	Token openBrace;
+	std::vector<Directive> directives;
+	std::vector<LocationBlock> locations;
+	Token closeBrace;
 
-    ServerBlock(Token server, Token open, std::vector<Directive> directives,
-                    std::vector<LocationBlock> locations, Token close);
+	ServerBlock(Token server, Token open, std::vector<Directive> directives,
+				std::vector<LocationBlock> locations, Token close);
 };
 
-class Parser {
-    private:
-    std::vector<Token> tokens;
-    size_t pos;
+class Parser
+{
+	private:
+		std::vector<Token> tokens;
+		size_t pos;
 
-    public:
-    Parser();
-    Parser(const std::vector<Token>& tokens);
-    Parser(const Parser& other);
-    Parser& operator=(const Parser& other);
-    ~Parser();
+	public:
+		Parser();
+		Parser(const std::vector<Token> &tokens);
+		Parser(const Parser &other);
+		Parser &operator=(const Parser &other);
+		~Parser();
 
-    ServerBlock parseServer();
-    LocationBlock parseLocation();
-    Directive parseDirective();
+		ServerBlock parseServer();
+		LocationBlock parseLocation();
+		Directive parseDirective();
 
-    private:
-    Token expect(TokenType type);
-    Token peek() const;
-    Token consume();
-    bool  isAtEnd() const;
+	private:
+		Token expect(TokenType type);
+		Token peek() const;
+		Token consume();
+		bool isAtEnd() const;
 };
 
 #endif
-
 
 // config_file      := server_block+
 

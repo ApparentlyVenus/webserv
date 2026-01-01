@@ -6,224 +6,258 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 19:05:08 by odana             #+#    #+#             */
-/*   Updated: 2026/01/01 10:10:40 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/02 00:45:29 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/LocationConfig.hpp"
 #include "../inc/ServerConfig.hpp"
 
-LocationConfig::LocationConfig() 
-    : path(""), root(""), autoIndex(false), index("index.html"),
-      redirect(""), redirectCode(0), uploadEnable(false), 
-      uploadStore(""), cgiPy(""), cgiPhp(""), cgiPl("") {}
+LocationConfig::LocationConfig()
+	: path(""), root(""), autoIndex(false), index("index.html"),
+	  redirect(""), redirectCode(0), uploadEnable(false),
+	  uploadStore(""), cgiPy(""), cgiPhp(""), cgiPl("") {}
 
-LocationConfig::LocationConfig(const LocationConfig& other)
-    : path(other.path), allowedMethods(other.allowedMethods),
-      root(other.root), autoIndex(other.autoIndex), index(other.index),
-      redirect(other.redirect), redirectCode(other.redirectCode),
-      uploadEnable(other.uploadEnable), uploadStore(other.uploadStore),
-      cgiExtension(other.cgiExtension), cgiPy(other.cgiPy), cgiPhp(other.cgiPhp), cgiPl(other.cgiPl) {}
+LocationConfig::LocationConfig(const LocationConfig &other)
+	: path(other.path), allowedMethods(other.allowedMethods),
+	  root(other.root), autoIndex(other.autoIndex), index(other.index),
+	  redirect(other.redirect), redirectCode(other.redirectCode),
+	  uploadEnable(other.uploadEnable), uploadStore(other.uploadStore),
+	  cgiExtension(other.cgiExtension), cgiPy(other.cgiPy), cgiPhp(other.cgiPhp), cgiPl(other.cgiPl) {}
 
-LocationConfig& LocationConfig::operator=(const LocationConfig& other) {
-    if (this != &other) {
-        path = other.path;
-        allowedMethods = other.allowedMethods;
-        root = other.root;
-        autoIndex = other.autoIndex;
-        index = other.index;
-        redirect = other.redirect;
-        redirectCode = other.redirectCode;
-        uploadEnable = other.uploadEnable;
-        uploadStore = other.uploadStore;
-        cgiExtension = other.cgiExtension;
-        cgiPy = other.cgiPy;
-        cgiPl = other.cgiPl;
-        cgiPhp = other.cgiPhp;
-    }
-    return *this;
+LocationConfig &LocationConfig::operator=(const LocationConfig &other)
+{
+	if (this != &other)
+	{
+		path = other.path;
+		allowedMethods = other.allowedMethods;
+		root = other.root;
+		autoIndex = other.autoIndex;
+		index = other.index;
+		redirect = other.redirect;
+		redirectCode = other.redirectCode;
+		uploadEnable = other.uploadEnable;
+		uploadStore = other.uploadStore;
+		cgiExtension = other.cgiExtension;
+		cgiPy = other.cgiPy;
+		cgiPl = other.cgiPl;
+		cgiPhp = other.cgiPhp;
+	}
+	return *this;
 }
 
 LocationConfig::~LocationConfig() {}
 
-
-std::string LocationConfig::getPath() const {
-    return path;
-}
-
-std::vector<std::string> LocationConfig::getAllowedMethods() const {
-    return allowedMethods;
-}
-
-std::string LocationConfig::getRoot() const {
-    return root;
-}
-
-std::string LocationConfig::getIndex() const {
-    return index;
-}
-
-std::string LocationConfig::getUploadStore() const {
-    return uploadStore;
-}
-
-std::vector<std::string> LocationConfig::getCgiExtensions() const {
-    return cgiExtension;
-}
-
-std::string LocationConfig::getCgiPy() const {
-    return cgiPy;
-}
-
-std::string LocationConfig::getCgiPhp() const {
-    return cgiPhp;
-}
-
-std::string LocationConfig::getCgiPl() const {
-    return cgiPl;
-}
-
-bool LocationConfig::hasRedirect() const {
-    return !redirect.empty();
-}
-
-std::string LocationConfig::getRedirect() const {
-    return redirect;
-}
-
-int LocationConfig::getRedirectCode() const {
-    return redirectCode;
-}
-
-bool LocationConfig::isUploadEnable() const {
-    return uploadEnable;
-}
-
-bool LocationConfig::isAutoIndex() const {
-    return autoIndex;
-}
-
-bool LocationConfig::isMethodAllowed(const std::string& method) const {
-    if (allowedMethods.empty())
-        return true;
-
-    for (size_t i = 0; i < allowedMethods.size(); i++) {
-        if (method == allowedMethods[i])
-            return true;
-    }
-    return false;
-}
-
-bool LocationConfig::isCGI(const std::string& path) const
+std::string LocationConfig::getPath() const
 {
-    if (cgiExtension.empty())
-        return (false);
-    
-	std::string	ext = getMimeType(path);
+	return path;
+}
 
-    for (size_t i = 0; i < cgiExtension.size(); i++)
+std::vector<std::string> LocationConfig::getAllowedMethods() const
+{
+	return allowedMethods;
+}
+
+std::string LocationConfig::getRoot() const
+{
+	return root;
+}
+
+std::string LocationConfig::getIndex() const
+{
+	return index;
+}
+
+std::string LocationConfig::getUploadStore() const
+{
+	return uploadStore;
+}
+
+std::vector<std::string> LocationConfig::getCgiExtensions() const
+{
+	return cgiExtension;
+}
+
+std::string LocationConfig::getCgiPy() const
+{
+	return cgiPy;
+}
+
+std::string LocationConfig::getCgiPhp() const
+{
+	return cgiPhp;
+}
+
+std::string LocationConfig::getCgiPl() const
+{
+	return cgiPl;
+}
+
+bool LocationConfig::hasRedirect() const
+{
+	return !redirect.empty();
+}
+
+std::string LocationConfig::getRedirect() const
+{
+	return redirect;
+}
+
+int LocationConfig::getRedirectCode() const
+{
+	return redirectCode;
+}
+
+bool LocationConfig::isUploadEnable() const
+{
+	return uploadEnable;
+}
+
+bool LocationConfig::isAutoIndex() const
+{
+	return autoIndex;
+}
+
+bool LocationConfig::isMethodAllowed(const std::string &method) const
+{
+	if (allowedMethods.empty())
+		return true;
+
+	for (size_t i = 0; i < allowedMethods.size(); i++)
 	{
-        if (ext == cgiExtension[i])
-            return (true);
-    }
-    return (false);
+		if (method == allowedMethods[i])
+			return true;
+	}
+	return false;
 }
 
-std::string LocationConfig::getTrueRoot(const ServerConfig& server) const {
-    if (!root.empty())
-        return root;
-    return server.getRoot();
+bool LocationConfig::isCGI(const std::string &path) const
+{
+	if (cgiExtension.empty())
+		return (false);
+
+	std::string ext = getMimeType(path);
+
+	for (size_t i = 0; i < cgiExtension.size(); i++)
+	{
+		if (ext == cgiExtension[i])
+			return (true);
+	}
+	return (false);
 }
 
-bool LocationConfig::isValid() const {
-    if (path.empty() || path[0] != '/')
-        return false;
-
-    if (uploadEnable && uploadStore.empty())
-        return false;
-    
-    if (!cgiExtension.empty()) {
-        bool hasPy = false;
-        bool hasPhp = false;
-        bool hasPl = false;
-        
-        for (size_t i = 0; i < cgiExtension.size(); i++) {
-            if (cgiExtension[i] == ".py")
-                hasPy = true;
-            if (cgiExtension[i] == ".php")
-                hasPhp = true;
-            if (cgiExtension[i] == ".pl")
-                hasPl = true;
-        }
-        
-        if (hasPy && cgiPy.empty())
-            return false;
-        if (hasPhp && cgiPhp.empty())
-            return false;
-        if (hasPl && cgiPl.empty())
-            return false;
-    }
-    
-    if (!redirect.empty() && (redirectCode != 301 && redirectCode != 302))
-        return false;
-    
-    return true;
+std::string LocationConfig::getTrueRoot(const ServerConfig &server) const
+{
+	if (!root.empty())
+		return root;
+	return server.getRoot();
 }
 
-void LocationConfig::setPath(const std::string& p) {
-    path = p;
+bool LocationConfig::isValid() const
+{
+	if (path.empty() || path[0] != '/')
+		return false;
+
+	if (uploadEnable && uploadStore.empty())
+		return false;
+
+	if (!cgiExtension.empty())
+	{
+		bool hasPy = false;
+		bool hasPhp = false;
+		bool hasPl = false;
+
+		for (size_t i = 0; i < cgiExtension.size(); i++)
+		{
+			if (cgiExtension[i] == ".py")
+				hasPy = true;
+			if (cgiExtension[i] == ".php")
+				hasPhp = true;
+			if (cgiExtension[i] == ".pl")
+				hasPl = true;
+		}
+
+		if (hasPy && cgiPy.empty())
+			return false;
+		if (hasPhp && cgiPhp.empty())
+			return false;
+		if (hasPl && cgiPl.empty())
+			return false;
+	}
+
+	if (!redirect.empty() && (redirectCode != 301 && redirectCode != 302))
+		return false;
+
+	return true;
 }
 
-void LocationConfig::addAllowedMethod(const std::string& method) {
-    allowedMethods.push_back(method);
+void LocationConfig::setPath(const std::string &p)
+{
+	path = p;
 }
 
-void LocationConfig::setRoot(const std::string& r) {
-    root = r;
+void LocationConfig::addAllowedMethod(const std::string &method)
+{
+	allowedMethods.push_back(method);
 }
 
-void LocationConfig::setAutoIndex(bool enable) {
-    autoIndex = enable;
+void LocationConfig::setRoot(const std::string &r)
+{
+	root = r;
 }
 
-void LocationConfig::setIndex(const std::string& idx) {
-    index = idx;
+void LocationConfig::setAutoIndex(bool enable)
+{
+	autoIndex = enable;
 }
 
-void LocationConfig::setRedirect(const std::string& url, int code) {
-    redirect = url;
-    redirectCode = code;
+void LocationConfig::setIndex(const std::string &idx)
+{
+	index = idx;
 }
 
-void LocationConfig::setUploadEnable(bool enable) {
-    uploadEnable = enable;
+void LocationConfig::setRedirect(const std::string &url, int code)
+{
+	redirect = url;
+	redirectCode = code;
 }
 
-void LocationConfig::setUploadStore(const std::string& store) {
-    uploadStore = store;
+void LocationConfig::setUploadEnable(bool enable)
+{
+	uploadEnable = enable;
 }
 
-void LocationConfig::addCgiExtension(const std::string& ext) {
-    cgiExtension.push_back(ext);
+void LocationConfig::setUploadStore(const std::string &store)
+{
+	uploadStore = store;
 }
 
-void LocationConfig::setCgiPy(const std::string& p) {
-    cgiPy = p;
+void LocationConfig::addCgiExtension(const std::string &ext)
+{
+	cgiExtension.push_back(ext);
 }
 
-void LocationConfig::setCgiPl(const std::string& p) {
-    cgiPl = p;
-}
-void LocationConfig::setCgiPhp(const std::string& p) {
-    cgiPhp = p;
+void LocationConfig::setCgiPy(const std::string &p)
+{
+	cgiPy = p;
 }
 
-std::string LocationConfig::getCgiInterpreter(const std::string& extension) const {
-    if (extension == ".py")
-        return cgiPy;
-    if (extension == ".php")
-        return cgiPhp;
-    if (extension == ".pl")
-        return cgiPl;
-    return "";
+void LocationConfig::setCgiPl(const std::string &p)
+{
+	cgiPl = p;
+}
+void LocationConfig::setCgiPhp(const std::string &p)
+{
+	cgiPhp = p;
+}
+
+std::string LocationConfig::getCgiInterpreter(const std::string &extension) const
+{
+	if (extension == ".py")
+		return cgiPy;
+	if (extension == ".php")
+		return cgiPhp;
+	if (extension == ".pl")
+		return cgiPl;
+	return "";
 }
