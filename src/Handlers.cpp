@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/31 17:38:32 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/01 13:05:36 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/01 13:42:02 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,15 +60,16 @@ static Response	handleCGI(Request &req, Response &res, const LocationConfig &con
 		return (InternalServerError(res));
 	
 	std::vector<std::string> envStrings = SetUpEnv(req, res);
-	char	**envArray = new(char*[envStrings.size()]);
+	char	**envArray = new char*[envStrings.size() + 1];
 	for (size_t i = 0; i < envStrings.size(); i++)
 	{
 		envArray[i] = (char *)envStrings[i].c_str();
 	}
 	envArray[envStrings.size()] = NULL;
 	
-	int		pipefd[2];
-	if (pipe(pipefd) == -1)
+	int		pipe_from_child[2];
+	int		pipe_to_child[2];
+	if (pipe(pipe_from_child) == -1 || pipe(pipe_to_child) == -1)
 	{
 		delete[] (envArray);
 		return (InternalServerError(res));
@@ -77,43 +78,57 @@ static Response	handleCGI(Request &req, Response &res, const LocationConfig &con
 	pid_t pid = fork();
 	if (pid == -1)
 	{
-		close(pipefd[0]);
-		close(pipefd[1]);
+		close(pipe_from_child[0]);
+		close(pipe_from_child[1]);
+		close(pipe_to_child[0]);
+		close(pipe_to_child[1]);
 		delete[] envArray;
 		return InternalServerError(res);
 	}
-	// if (req.method == "POST")
-	// {
 
-	// }
-
-	if (req.method == "GET")
+	if (pid == 0)
 	{
-		if (pid == 0)
+		if (dup2(pipe_to_child[0], STDIN_FILENO) < 0)
 		{
-			close(pipefd[0]);
-			if (dup2(pipefd[1], STDOUT_FILENO) < 0)
-			{
-				close(pipefd[1]);
-				exit(1);
-			}
-			close(pipefd[1]);
-			char *argv[] = {(char *)interpreter.c_str(), (char *)res.fullPath.c_str(), NULL};
-			execve(interpreter.c_str(), argv, envArray);
+			close(pipe_to_child[0]);
 			exit(1);
 		}
+		if (dup2(pipe_from_child[1], STDOUT_FILENO) < 0)
+		{
+			close(pipe_from_child[1]);
+			exit(1);
+		}
+		close(pipe_to_child[0]);
+		close(pipe_to_child[1]);
+		close(pipe_from_child[0]);
+		close(pipe_from_child[1]);
+		char *argv[] = {(char *)interpreter.c_str(), (char *)res.fullPath.c_str(), NULL};
+		execve(interpreter.c_str(), argv, envArray);
+		exit(1);
+	}
+	
+	else
+	{
+		close(pipe_from_child[1]);
+		close(pipe_to_child[0]);
+		if (req.method == "POST")
+		{
+			write(pipe_to_child[1], req.body.c_str(), req.body.size());
+		}
 
-		close(pipefd[1]);
+		close(pipe_to_child[1]);
+
 		char		buffer[4096];
 		std::string	output;
 		
 		while (true)
 		{
-			ssize_t	bytes = read(pipefd[0], buffer, sizeof(buffer));
+			ssize_t	bytes = read(pipe_from_child[0], buffer, sizeof(buffer));
 			if (bytes <= 0)
 				break ;
 			output.append(buffer, bytes);
 		}
+		close(pipe_from_child[0]);
 
 		int	status;
 		waitpid(pid, &status, 0);
@@ -136,7 +151,7 @@ static Response	handleCGI(Request &req, Response &res, const LocationConfig &con
 			{
 				std::string key = splitHeaders[i].substr(0, colon);
 				std::string value = splitHeaders[i].substr(colon + 1);
-				req.headers[trim(key)] = trim(value);
+				res.headers[trim(key)] = trim(value);
 			}
 		}
 
@@ -151,8 +166,6 @@ static Response	handleCGI(Request &req, Response &res, const LocationConfig &con
 
 		return (res);
 	}
-
-	return (res);
 }
 
 Response Handlers::router(Response &res, Request &req, const LocationConfig &conf)
