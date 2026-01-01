@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/31 17:38:32 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/01 13:45:09 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/02 00:40:50 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,10 +163,18 @@ static Response	handleCGI(Request &req, Response &res, const LocationConfig &con
 			res.headers["Content-Length"] = ss.str();
 		}
 
-		if (req.method == "POST")
-			res.statusCode = 201;
+		if (res.headers.find("Status") != res.headers.end())
+		{
+			res.statusCode = std::atoi(res.headers["Status"].c_str());
+			res.headers.erase("Status");
+		}
 		else
-			res.statusCode = 200;
+		{
+			if (req.method == "POST")
+				res.statusCode = 201;
+			else
+				res.statusCode = 200;
+		}
 
 		return (res);
 	}
