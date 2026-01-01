@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/31 17:38:32 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/01 12:59:42 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/01 13:03:44 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,67 @@ static Response	handleCGI(Request &req, Response &res, const LocationConfig &con
 			execve(interpreter.c_str(), argv, envArray);
 			exit(1);
 		}
+		if (pid == 0)
+		{
+			close(pipefd[0]);
+			if (dup2(pipefd[1], STDOUT_FILENO) < 0)
+			{
+				close(pipefd[1]);
+				exit(1);
+			}
+			close(pipefd[1]);
+			char *argv[] = {(char *)interpreter.c_str(), (char *)res.fullPath.c_str(), NULL};
+			execve(interpreter.c_str(), argv, envArray);
+			exit(1);
+		}
 
+		close(pipefd[1]);
+		char		buffer[4096];
+		std::string	output;
+		
+		while (true)
+		{
+			ssize_t	bytes = read(pipefd[0], buffer, sizeof(buffer));
+			if (bytes <= 0)
+				break ;
+			output.append(buffer, bytes);
+		}
+
+		int	status;
+		waitpid(pid, &status, 0);
+		delete[] (envArray);
+
+		if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
+			return InternalServerError(res);
+
+		size_t	headersEnd = output.find("\r\n\r\n");
+		if (headersEnd == std::string::npos)
+			return InternalServerError(res);
+		
+		std::string	headers = output.substr(0, headersEnd);
+		std::string	body = output.substr(headersEnd + 4);
+		std::vector<std::string> splitHeaders = split(headers, '\n');
+		for (size_t i = 0; i < splitHeaders.size(); i++)
+		{
+			size_t colon = splitHeaders[i].find(':');
+			if (colon != std::string::npos)
+			{
+				std::string key = splitHeaders[i].substr(0, colon);
+				std::string value = splitHeaders[i].substr(colon + 1);
+				req.headers[trim(key)] = trim(value);
+			}
+		}
+
+		res.statusCode = 200;
+		res.body = body;
+		if (res.headers.find("Content-Length") == res.headers.end())
+		{
+			std::stringstream ss;
+			ss << body.length();
+			res.headers["Content-Length"] = ss.str();
+		}
+
+		return (res);
 		close(pipefd[1]);
 		char		buffer[4096];
 		std::string	output;
