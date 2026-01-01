@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Handlers.hpp                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/01 10:25:00 by yitani            #+#    #+#             */
+/*   Updated: 2026/01/01 11:06:51 by yitani           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef HANDLERS_HPP
 # define HANDLERS_HPP
 
@@ -9,6 +21,11 @@
 # include <fstream>
 # include <sstream>
 # include "../inc/ResponseStatus.hpp"
+# include <vector>
+# include "ServerConfig.hpp"
+# include "StringUtils.hpp"
+# include <unistd.h>
+# include <sys/wait.h>
 
 class Handlers
 {

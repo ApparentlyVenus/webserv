@@ -6,14 +6,27 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 21:52:35 by yitani            #+#    #+#             */
-/*   Updated: 2025/12/31 17:40:33 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/01 10:59:27 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Response.hpp"
 
-Response::Response(Request &req, const LocationConfig &conf)
+std::string	Response::getServerName()
 {
+	return (this->serverName);
+}
+std::string	Response::getServerPort()
+{
+	std::stringstream	ss;
+	ss << this->serverPort;
+	return (ss.str());
+}
+
+Response::Response(Request &req, const LocationConfig &conf, const ServerConfig& servConf, int port)
+{
+	this->serverName = servConf.getServerName();
+	this->serverPort = port;
 	this->fullPath = conf.getRoot() + req.path;
 	if (req.headers.find("connection") != req.headers.end())
 		this->headers["Connection"] = req.headers["connection"];

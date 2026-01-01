@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 21:52:09 by yitani            #+#    #+#             */
-/*   Updated: 2025/12/31 15:47:34 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/01 10:58:05 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,19 +20,25 @@
 # include "FileUtils.hpp"
 # include <cstdio>
 # include <fstream>
+# include "ServerConfig.hpp"
 
 class Response
 {
+	private:
+		std::string	serverName;
+		int			serverPort;
 	public:
 		int									statusCode;
 		std::string							fullPath;
 		std::map<std::string, std::string>	headers;
 		std::string body;
 
-		Response(Request &req, const LocationConfig &conf);
+		Response(Request &req, const LocationConfig &conf, const ServerConfig& servConf, int port);
 		~Response();
 		static std::string	format(Response &res);
 		static std::string	getReasonPhrase(int statusCode);
+		std::string			getServerName();
+		std::string			getServerPort();
 };
 
 #endif
