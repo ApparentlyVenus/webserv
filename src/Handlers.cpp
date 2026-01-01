@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/31 17:38:32 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/01 11:22:21 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/01 12:59:42 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,45 +50,110 @@ static std::vector<std::string>	SetUpEnv(Request &req, Response &res)
 	return (envStrings);
 }
 
-// be2tol hale aw kif??
 static Response	handleCGI(Request &req, Response &res, const LocationConfig &conf)
-{}
-// {
-// 	int		pipefd[2];
-// 	if (pipe(pipefd) == -1)
-// 	{
-// 		// error 
-// 	}
+{
+	size_t dotPos = res.fullPath.find_last_of(".");
+	std::string extension = res.fullPath.substr(dotPos);
+	std::string interpreter = conf.getCgiInterpreter(extension);
 
-// 	pid_t	pid = fork();
-// 	if (pid == -1)
-// 	{
-// 		// error
-// 	}
-// 	else if (pid == 0)
-// 	{
-// 		close(pipefd[0]);
-// 		if (dup2(pipefd[1], STDOUT_FILENO) < 0)
-// 		{
-// 			exit(1);
-// 		}
-// 		close(pipefd[1]);
-// 		execve(interpreter, res.fullPath, env);
-// 	}
+	if (interpreter.empty())
+		return (InternalServerError(res));
+	
+	std::vector<std::string> envStrings = SetUpEnv(req, res);
+	char	**envArray = new(char*[envStrings.size()]);
+	for (size_t i = 0; i < envStrings.size(); i++)
+	{
+		envArray[i] = (char *)envStrings[i].c_str();
+	}
+	envArray[envStrings.size()] = NULL;
+	
+	int		pipefd[2];
+	if (pipe(pipefd) == -1)
+	{
+		delete[] (envArray);
+		return (InternalServerError(res));
+	}
 
+	pid_t pid = fork();
+	if (pid == -1)
+	{
+		close(pipefd[0]);
+		close(pipefd[1]);
+		delete[] envArray;
+		return InternalServerError(res);
+	}
+	// if (req.method == "POST")
+	// {
 
-// 	if (req.method == "POST")
-// 	{
+	// }
 
-// 	}
+	if (req.method == "GET")
+	{
+		if (pid == 0)
+		{
+			close(pipefd[0]);
+			if (dup2(pipefd[1], STDOUT_FILENO) < 0)
+			{
+				close(pipefd[1]);
+				exit(1);
+			}
+			close(pipefd[1]);
+			char *argv[] = {(char *)interpreter.c_str(), (char *)res.fullPath.c_str(), NULL};
+			execve(interpreter.c_str(), argv, envArray);
+			exit(1);
+		}
 
-// 	if (req.method == "GET")
-// 	{
+		close(pipefd[1]);
+		char		buffer[4096];
+		std::string	output;
+		
+		while (true)
+		{
+			ssize_t	bytes = read(pipefd[0], buffer, sizeof(buffer));
+			if (bytes <= 0)
+				break ;
+			output.append(buffer, bytes);
+		}
 
-// 	}
+		int	status;
+		waitpid(pid, &status, 0);
+		delete[] (envArray);
 
-// 	return (res);
-// }
+		if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
+			return InternalServerError(res);
+
+		size_t	headersEnd = output.find("\r\n\r\n");
+		if (headersEnd == std::string::npos)
+			return InternalServerError(res);
+		
+		std::string	headers = output.substr(0, headersEnd);
+		std::string	body = output.substr(headersEnd + 4);
+		std::vector<std::string> splitHeaders = split(headers, '\n');
+		for (size_t i = 0; i < splitHeaders.size(); i++)
+		{
+			size_t colon = splitHeaders[i].find(':');
+			if (colon != std::string::npos)
+			{
+				std::string key = splitHeaders[i].substr(0, colon);
+				std::string value = splitHeaders[i].substr(colon + 1);
+				req.headers[trim(key)] = trim(value);
+			}
+		}
+
+		res.statusCode = 200;
+		res.body = body;
+		if (res.headers.find("Content-Length") == res.headers.end())
+		{
+			std::stringstream ss;
+			ss << body.length();
+			res.headers["Content-Length"] = ss.str();
+		}
+
+		return (res);
+	}
+
+	return (res);
+}
 
 Response Handlers::router(Response &res, Request &req, const LocationConfig &conf)
 {
