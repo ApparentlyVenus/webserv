@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/22 09:10:13 by odana             #+#    #+#             */
-/*   Updated: 2025/12/31 19:15:45 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/01 10:09:36 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include <string>
 # include <vector>
+# include "FileUtils.hpp"
 
 class ServerConfig;
 

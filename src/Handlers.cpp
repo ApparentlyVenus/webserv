@@ -6,11 +6,15 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/31 17:38:32 by yitani            #+#    #+#             */
-/*   Updated: 2025/12/31 19:52:40 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/01 10:02:14 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Handlers.hpp"
+
+static Response	handleCGI(Request &req, Response &res, const LocationConfig &conf)
+{
+}
 
 Response Handlers::router(Response &res, Request &req, const LocationConfig &conf)
 {

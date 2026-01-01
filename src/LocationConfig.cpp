@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   LocationConfig.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
+/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 19:05:08 by odana             #+#    #+#             */
-/*   Updated: 2025/12/26 19:05:35 by odana            ###   ########.fr       */
+/*   Updated: 2026/01/01 10:10:40 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,21 +114,19 @@ bool LocationConfig::isMethodAllowed(const std::string& method) const {
     return false;
 }
 
-bool LocationConfig::isCGI(const std::string& path) const {
+bool LocationConfig::isCGI(const std::string& path) const
+{
     if (cgiExtension.empty())
-        return false;
+        return (false);
     
-    size_t dot = path.find_last_of('.');
-    if (dot == std::string::npos)
-        return false;
+	std::string	ext = getMimeType(path);
 
-    std::string extension = path.substr(dot);
-
-    for (size_t i = 0; i < cgiExtension.size(); i++) {
-        if (extension == cgiExtension[i])
-            return true;
+    for (size_t i = 0; i < cgiExtension.size(); i++)
+	{
+        if (ext == cgiExtension[i])
+            return (true);
     }
-    return false;
+    return (false);
 }
 
 std::string LocationConfig::getTrueRoot(const ServerConfig& server) const {
