@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
+/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 21:52:35 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/01 10:59:27 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/02 11:00:14 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,10 @@ std::string Response::format(Response &res)
 	for (it = res.headers.begin(); it != res.headers.end(); ++it)
 	{
 		stringBuilder << it->first << ": " << it->second << "\r\n";
+	}
+
+	for (size_t i = 0; i < res.setCookies.size(); i++) {
+    	stringBuilder << "Set-Cookie: " << res.setCookies[i] << "\r\n";
 	}
 	stringBuilder << "\r\n";
 	stringBuilder << res.body;

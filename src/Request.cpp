@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
+/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/25 20:41:56 by yitani            #+#    #+#             */
-/*   Updated: 2025/12/28 20:24:20 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/02 10:59:18 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,19 @@ Request Request::parse(const std::string &buffer, size_t maxBodySize)
 		{
 			std::string key = splitHeaders[i].substr(0, colon);
 			std::string value = splitHeaders[i].substr(colon + 1);
-			req.headers[toLower(trim(key))] = trim(value);
+			// check if cookie and start cookie extraction
+			if (toLower(trim(key)) == "cookie") {
+				std::vector<std::string> splitCookies = split(value, ';');
+				for (size_t j = 0; j < splitCookies.size(); j++) {
+					size_t equal = splitCookies[j].find('=');
+					if (equal != std::string::npos) {
+						std::string cookieKey = splitCookies[j].substr(0, equal);
+						std::string cookieValue = splitCookies[j].substr(equal + 1);
+						req.cookies[trim(cookieKey)] = trim(cookieValue);
+					}
+				}
+			} else
+				req.headers[toLower(trim(key))] = trim(value);
 		}
 	}
 
