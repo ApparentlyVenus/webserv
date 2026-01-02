@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 21:52:35 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/02 15:38:46 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/02 17:19:42 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,9 +61,11 @@ std::string Response::format(Response &res)
 		stringBuilder << it->first << ": " << it->second << "\r\n";
 	}
 
-	for (size_t i = 0; i < res.setCookies.size(); i++) {
-    	stringBuilder << "Set-Cookie: " << res.setCookies[i] << "\r\n";
+	for (size_t i = 0; i < res.setCookies.size(); i++)
+	{
+		stringBuilder << "Set-Cookie: " << res.setCookies[i] << "\r\n";
 	}
+
 	stringBuilder << "\r\n";
 	stringBuilder << res.body;
 
