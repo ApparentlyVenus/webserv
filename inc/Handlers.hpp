@@ -3,29 +3,31 @@
 /*                                                        :::      ::::::::   */
 /*   Handlers.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
+/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/01 10:25:00 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/01 11:06:51 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/02 11:23:38 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef HANDLERS_HPP
 # define HANDLERS_HPP
 
+# include "SessionManager.hpp"
 # include "Response.hpp"
 # include "Request.hpp"
 # include "LocationConfig.hpp"
 # include "FileUtils.hpp"
 # include "StringUtils.hpp"
-# include <fstream>
-# include <sstream>
-# include "../inc/ResponseStatus.hpp"
-# include <vector>
+# include "ResponseStatus.hpp"
 # include "ServerConfig.hpp"
 # include "StringUtils.hpp"
+
 # include <unistd.h>
 # include <sys/wait.h>
+# include <fstream>
+# include <sstream>
+# include <vector>
 
 class Handlers
 {

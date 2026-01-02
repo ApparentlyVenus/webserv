@@ -6,7 +6,7 @@
 /*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 21:52:09 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/02 10:59:50 by odana            ###   ########.fr       */
+/*   Updated: 2026/01/02 11:47:39 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ class Response
 	public:
 		int									statusCode;
 		std::string							fullPath;
-		std::string							setCookies;
+		std::vector<std::string> 			setCookies;		
 		std::map<std::string, std::string>	headers;
 		std::string body;
 
