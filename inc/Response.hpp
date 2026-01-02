@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 21:52:09 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/02 15:34:57 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/02 17:42:31 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ class Response
 	private:
 		std::string	serverName;
 		int			serverPort;
+		std::string	clientIP;
 	public:
 		int									statusCode;
 		std::string							fullPath;
@@ -34,12 +35,13 @@ class Response
 		std::map<std::string, std::string>	headers;
 		std::string body;
 
-		Response(Request &req, const LocationConfig &conf, const ServerConfig& servConf, int port);
+		Response(Request &req, const LocationConfig &conf, const ServerConfig& servConf, int port, std::string IP);
 		~Response();
 		static std::string	format(Response &res);
 		static std::string	getReasonPhrase(int statusCode);
 		std::string			getServerName();
 		std::string			getServerPort();
+		std::string			getClientIP();
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 21:52:35 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/02 17:19:42 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/02 17:43:05 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,14 @@ std::string	Response::getServerPort()
 	return (ss.str());
 }
 
-Response::Response(Request &req, const LocationConfig &conf, const ServerConfig& servConf, int port)
+std::string	Response::getClientIP()
 {
+	return (this->clientIP);
+}
+
+Response::Response(Request &req, const LocationConfig &conf, const ServerConfig& servConf, int port, std::string IP)
+{
+	this->clientIP = IP;
 	this->serverName = servConf.getServerName();
 	this->serverPort = port;
 	this->fullPath = conf.getRoot() + req.path;

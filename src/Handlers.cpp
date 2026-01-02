@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/31 17:38:32 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/02 17:23:40 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/02 17:45:32 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ static std::vector<std::string>	SetUpEnv(Request &req, Response &res)
 	envStrings.push_back("GATEWAY_INTERFACE=CGI/1.1");
 	envStrings.push_back("SERVER_NAME=" + res.getServerName());
 	envStrings.push_back("SERVER_PORT=" + res.getServerPort());
+	envStrings.push_back("REMOTE_ADDR=" + res.getClientIP());
 
 	for (it = req.headers.begin(); it != req.headers.end(); ++it)
 	{
