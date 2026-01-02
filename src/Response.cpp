@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
+/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 21:52:35 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/02 11:00:14 by odana            ###   ########.fr       */
+/*   Updated: 2026/01/02 15:38:46 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,18 @@ Response::Response(Request &req, const LocationConfig &conf, const ServerConfig&
 		this->headers["Connection"] = req.headers["connection"];
 	else
 		this->headers["Connection"] = "close";
+	if (req.state == ERROR)
+	{
+		this->statusCode = req.errorCode;
+		std::stringstream	ss;
+		ss << req.errorCode;
+		this->body = "<html><body><h1>" + ss.str() + " Error</h1></body></html>";
+		ss.clear();
+		ss.str("");
+		ss << this->body.length();
+		this->headers["Content-Type"] = "text/html";
+		this->headers["Content-Length"] = ss.str();
+	}
 }
 
 Response::~Response(){}
