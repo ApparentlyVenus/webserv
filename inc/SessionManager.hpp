@@ -1,46 +1,37 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   SessionManager.hpp                                 :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/02 11:20:15 by odana             #+#    #+#             */
-/*   Updated: 2026/01/02 11:53:40 by odana            ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+#ifndef SESSIONMANAGER_HPP
+#define SESSIONMANAGER_HPP
 
-#ifndef SESSION_MANAGER_HPP
-# define SESSION_MANAGER_HPP
+#include <string>
+#include <map>
+#include <ctime>
 
-# include <string>
-# include <map>
-
-struct Session {
+struct Session
+{
     std::string sessionId;
+    std::map<std::string, std::string> data;
     time_t createdAt;
     time_t lastAccess;
-    std::map<std::string, std::string> data;
-
+    
+    // ✅ Add default constructor
+    Session();
+    
+    // Keep your existing constructor
     Session(const std::string& id);
-
 };
 
-class SessionManager {
+class SessionManager
+{
     private:
-    
-    static std::map<std::string, Session> sessions;    
-    SessionManager();
-
+        static std::map<std::string, Session> sessions;
+        
+        static std::string generateSessionId();
+        static bool isSessionExpired(const Session& session, int timeoutSeconds);
+        
     public:
-    
-    static std::string generateSessionId();
-    static std::string createSession();
-    static Session* getSession(const std::string& sessionId);
-    
-    static void touchSession(const std::string& sessionId);
-    static void destroySession(const std::string& sessionId);
-    static bool isSessionExpired(const Session& session, int timeout);
+        static std::string createSession();
+        static Session* getSession(const std::string& sessionId);
+        static void touchSession(const std::string& sessionId);
+        static void destroySession(const std::string& sessionId);
 };
 
 #endif

@@ -3,146 +3,172 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wasmar <wasmar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 19:06:18 by odana             #+#    #+#             */
-/*   Updated: 2026/01/02 00:45:41 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/02 22:03:40 by wasmar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <csignal>
 #include "../inc/Tokenizer.hpp"
 #include "../inc/Parser.hpp"
 #include "../inc/ConfigFactory.hpp"
 #include "../inc/FileUtils.hpp"
 #include "../inc/Logger.hpp"
+#include "../inc/Server.hpp"
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <csignal>
 
-void printServerConfig(const ServerConfig &cfg)
+
+// Global server pointer for signal handling (MUST be at the top, before signalHandler)
+Server *g_server = NULL;
+
+// Signal handler function (MUST be declared before main)
+void signalHandler(int signum)
 {
-	std::cout << "\n=== SERVER CONFIG ===" << std::endl;
+    std::cout << "\nInterrupt signal (" << signum << ") received." << std::endl;
+    if (g_server)
+    {
+        g_server->stop();
+    }
+}
 
-	std::vector<int> ports = cfg.getPorts();
-	std::cout << "Ports: ";
-	for (size_t i = 0; i < ports.size(); i++)
-	{
-		std::cout << ports[i];
-		if (i < ports.size() - 1)
-			std::cout << ", ";
-	}
-	std::cout << std::endl;
+bool fileExists1(const std::string& path)
+{
+    std::ifstream file(path.c_str());
+    return file.good();
+}
 
-	std::cout << "IP: " << cfg.getIP() << std::endl;
-	std::cout << "Server Name: " << cfg.getServerName() << std::endl;
-	std::cout << "Root: " << cfg.getRoot() << std::endl;
-	std::cout << "Max Body Size: " << cfg.getClientMaxBodySize() << " bytes" << std::endl;
+std::string readFile2(const std::string& path)
+{
+    std::ifstream file(path.c_str());
+    if (!file.is_open())
+        return "";
+    
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
+}
 
-	std::vector<LocationConfig> locations = cfg.getLocations();
-	std::cout << "\n--- LOCATIONS (" << locations.size() << ") ---" << std::endl;
-
-	for (size_t i = 0; i < locations.size(); i++)
-	{
-		std::cout << "\n[" << i << "] " << locations[i].getPath() << std::endl;
-
-		std::vector<std::string> methods = locations[i].getAllowedMethods();
-		std::cout << "  Methods: ";
-		if (methods.empty())
-		{
-			std::cout << "ALL";
-		}
-		else
-		{
-			for (size_t j = 0; j < methods.size(); j++)
-			{
-				std::cout << methods[j];
-				if (j < methods.size() - 1)
-					std::cout << ", ";
-			}
-		}
-		std::cout << std::endl;
-
-		std::cout << "  Root: " << locations[i].getRoot() << std::endl;
-		std::cout << "  Index: " << locations[i].getIndex() << std::endl;
-		std::cout << "  AutoIndex: " << (locations[i].isAutoIndex() ? "on" : "off") << std::endl;
-
-		if (locations[i].hasRedirect())
-		{
-			std::cout << "  Redirect: " << locations[i].getRedirectCode()
-					  << " -> " << locations[i].getRedirect() << std::endl;
-		}
-
-		if (locations[i].isUploadEnable())
-		{
-			std::cout << "  Upload: enabled (" << locations[i].getUploadStore() << ")" << std::endl;
-		}
-
-		std::vector<std::string> cgiExt = locations[i].getCgiExtensions();
-		if (!cgiExt.empty())
-		{
-			std::cout << "  CGI Extensions: ";
-			for (size_t j = 0; j < cgiExt.size(); j++)
-			{
-				std::cout << cgiExt[j];
-				if (j < cgiExt.size() - 1)
-					std::cout << ", ";
-			}
-			std::cout << std::endl;
-
-			if (!locations[i].getCgiPy().empty())
-				std::cout << "    Python: " << locations[i].getCgiPy() << std::endl;
-			if (!locations[i].getCgiPhp().empty())
-				std::cout << "    PHP: " << locations[i].getCgiPhp() << std::endl;
-			if (!locations[i].getCgiPl().empty())
-				std::cout << "    Perl: " << locations[i].getCgiPl() << std::endl;
-		}
-	}
-
-	std::cout << "\n=====================\n"
-			  << std::endl;
+void logError3(const std::string& message)
+{
+    std::cerr << "Error: " << message << std::endl;
 }
 
 int main(int argc, char **argv)
 {
-	if (argc != 2)
-	{
-		std::cerr << "Usage: " << argv[0] << " <config_file>" << std::endl;
-		return 1;
-	}
+    if (argc != 2)
+    {
+        std::cerr << "Usage: " << argv[0] << " <config_file>" << std::endl;
+        return 1;
+    }
 
-	std::string configPath = argv[1];
+    std::string configPath = argv[1];
 
-	if (!fileExists(configPath))
-	{
-		logError("Config file not found: " + configPath);
-		return 1;
-	}
+    if (!fileExists1(configPath))
+    {
+        logError3("Config file not found: " + configPath);
+        return 1;
+    }
 
-	std::string content = readFile(configPath);
-	if (content.empty())
-	{
-		logError("Could not read config file");
-		return 1;
-	}
+    std::string content = readFile2(configPath);
+    if (content.empty())
+    {
+        logError3("Could not read config file");
+        return 1;
+    }
 
-	try
-	{
-		Tokenizer tokenizer(content);
-		std::vector<Token> tokens = tokenizer.tokenize();
+    try
+    {
+        // Parse configuration file
+        std::cout << "Parsing configuration file: " << configPath << std::endl;
+        
+        Tokenizer tokenizer(content);
+        std::vector<Token> tokens = tokenizer.tokenize();
 
-		Parser parser(tokens);
-		ServerBlock block = parser.parseServer();
+        Parser parser(tokens);
+        
+        // Parse all server blocks
+        std::vector<ServerConfig> configs;
+        
+        // Try to parse multiple server blocks if present
+        while (!parser.isAtEnd())
+        {
+            try
+            {
+                ServerBlock block = parser.parseServer();
+                ServerConfig config = ConfigFactory::buildServer(block);
+                
+                // Validate configuration
+                if (!config.isValid())
+                {
+                    logError3("Invalid server configuration found");
+                    continue;
+                }
+                
+                configs.push_back(config);
+                std::cout << "Loaded server config: " << config.getServerName() 
+                          << " on ports: ";
+                std::vector<int> ports = config.getPorts();
+                for (size_t i = 0; i < ports.size(); i++)
+                {
+                    std::cout << ports[i];
+                    if (i < ports.size() - 1)
+                        std::cout << ", ";
+                }
+                std::cout << std::endl;
+            }
+            catch (const std::exception& e)
+            {
+                // If we already have configs, this might just be end of file
+                if (configs.empty())
+                {
+                    logError3(std::string("Failed to parse server block: ") + e.what());
+                    return 1;
+                }
+                break;
+            }
+        }
+        
+        if (configs.empty())
+        {
+            logError3("No valid server configurations found");
+            return 1;
+        }
 
-		ServerConfig config = ConfigFactory::buildServer(block);
+        std::cout << "Successfully loaded " << configs.size() << " server configuration(s)" << std::endl;
+        
+        // Create and run server
+        Server server(configs);
+        g_server = &server;  // Now this will work
+        
+        // Setup signal handlers for graceful shutdown
+        signal(SIGINT, signalHandler);   // Now signalHandler is declared
+        signal(SIGTERM, signalHandler);
+        
+        std::cout << "\n========================================" << std::endl;
+        std::cout << "Starting web server..." << std::endl;
+        std::cout << "Press Ctrl+C to stop" << std::endl;
+        std::cout << "========================================\n" << std::endl;
+        
+        // Run the server (blocking call)
+        server.run();
+        
+        std::cout << "Server stopped gracefully" << std::endl;
+    }
+    catch (const std::exception& e)
+    {
+        logError3(std::string("Fatal error: ") + e.what());
+        return 1;
+    }
 
-		printServerConfig(config);
-
-		logInfo("Configuration loaded successfully");
-		logError("yousef akal kaka");
-	}
-	catch (const std::exception &e)
-	{
-		logError(std::string("Error: ") + e.what());
-		return 1;
-	}
-
-	return 0;
+    return 0;
 }

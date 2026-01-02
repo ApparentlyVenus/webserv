@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
+/*   By: wasmar <wasmar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/22 09:10:18 by odana             #+#    #+#             */
-/*   Updated: 2026/01/02 10:30:49 by odana            ###   ########.fr       */
+/*   Updated: 2026/01/02 21:54:42 by wasmar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,4 +90,94 @@ bool ServerConfig::isValid() const {
     }
 
     return true;
+}
+
+
+
+
+/* ========================================================================== */
+/*                              SETTERS                                       */
+/* ========================================================================== */
+
+void ServerConfig::addPort(int port)
+{
+    // Check if port already exists to avoid duplicates
+    for (size_t i = 0; i < ports.size(); i++)
+    {
+        if (ports[i] == port)
+            return;
+    }
+    ports.push_back(port);
+}
+
+void ServerConfig::setIP(const std::string& newIp)
+{
+    ip = newIp;
+}
+
+void ServerConfig::setServerName(const std::string& name)
+{
+    serverName = name;
+}
+
+void ServerConfig::setRoot(const std::string& newRoot)
+{
+    root = newRoot;
+}
+
+void ServerConfig::setClientMaxBodySize(int size)
+{
+    clientMaxBodySize = size;
+}
+
+void ServerConfig::addErrorPage(int code, const std::string& path)
+{
+    errorPages[code] = path;
+}
+
+void ServerConfig::addLocation(const LocationConfig& loc)
+{
+    locations.push_back(loc);
+}
+
+/* ========================================================================== */
+/*                            DESTRUCTOR                                      */
+/* ========================================================================== */
+
+ServerConfig::~ServerConfig()
+{
+    // Nothing to manually delete - vector and map handle their own cleanup
+}
+
+
+
+ServerConfig::ServerConfig()
+    : ip("0.0.0.0"), serverName(""), root(""), clientMaxBodySize(1048576)
+{
+}
+
+ServerConfig::ServerConfig(const ServerConfig& other)
+    : ports(other.ports),
+      ip(other.ip),
+      serverName(other.serverName),
+      root(other.root),
+      clientMaxBodySize(other.clientMaxBodySize),
+      errorPages(other.errorPages),
+      locations(other.locations)
+{
+}
+
+ServerConfig& ServerConfig::operator=(const ServerConfig& other)
+{
+    if (this != &other)
+    {
+        ports = other.ports;
+        ip = other.ip;
+        serverName = other.serverName;
+        root = other.root;
+        clientMaxBodySize = other.clientMaxBodySize;
+        errorPages = other.errorPages;
+        locations = other.locations;
+    }
+    return *this;
 }

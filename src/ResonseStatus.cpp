@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ResonseStatus.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wasmar <wasmar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/31 19:11:29 by yitani            #+#    #+#             */
-/*   Updated: 2025/12/31 20:02:26 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/02 22:40:33 by wasmar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 Response checkMethodAllowed(Response &res, const LocationConfig &conf)
 {
 	std::stringstream	ss;
-
+	(void)conf;
 	res.statusCode = 405;
 	res.headers["Content-Type"] = "text/html";
 	res.body = "<html><body><h1>405 Method Not Allowed</h1></body></html>";
