@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Handlers.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
+/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/31 17:38:32 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/02 11:44:48 by odana            ###   ########.fr       */
+/*   Updated: 2026/01/02 17:23:40 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,23 +14,27 @@
 
 Handlers::~Handlers() {}
 
-static Session* loadSession(Request& req, Response& res, bool createIfMissing) {
-    if (req.cookies.find("SESSID") != req.cookies.end()) {
-        Session* sess = SessionManager::getSession(req.cookies["SESSID"]);
-        if (sess) {
-            SessionManager::touchSession(sess->sessionId);
-            return sess;
-        }
-    }
-    
-    if (createIfMissing) {
-        std::string newId = SessionManager::createSession();
+static Session *loadSession(Request &req, Response &res, bool createIfMissing)
+{
+	if (req.cookies.find("SESSID") != req.cookies.end())
+	{
+		Session *sess = SessionManager::getSession(req.cookies["SESSID"]);
+		if (sess)
+		{
+			SessionManager::touchSession(sess->sessionId);
+			return sess;
+		}
+	}
+
+	if (createIfMissing)
+	{
+		std::string newId = SessionManager::createSession();
 		std::string cookie = "SESSID=" + newId + "; Path=/; Max-Age=3600; HttpOnly";
 		res.setCookies.push_back(cookie);
-        return SessionManager::getSession(newId);
-    }
-    
-    return NULL;
+		return SessionManager::getSession(newId);
+	}
+
+	return NULL;
 }
 
 static std::vector<std::string>	SetUpEnv(Request &req, Response &res)
