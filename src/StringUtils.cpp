@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StringUtils.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
+/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/23 13:07:51 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/01 10:46:31 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/03 16:26:15 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,4 +104,16 @@ std::vector<std::string> split(const std::string &str, char delim)
 			container.push_back(str.substr(start));
 	}
 	return (container);
+}
+
+std::string replaceAll(const std::string& str, const std::string& find, const std::string& replace) {
+    std::string result = str;
+    size_t pos = 0;
+    
+    while ((pos = result.find(find, pos)) != std::string::npos) {
+        result.replace(pos, find.length(), replace);
+        pos += replace.length();
+    }
+    
+    return result;
 }
