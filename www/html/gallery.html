@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery - Webserv</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">Webserv</div>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/login.html">Login</a></li>
+                <li><a href="/upload.html">Upload</a></li>
+                <li><a href="/gallery.html" class="active">Gallery</a></li>
+                <li><a href="/about.html">About</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="gallery-section">
+            <h1>Image Gallery</h1>
+            <p>Demonstrating static file serving with correct MIME types</p>
+            
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <img src="/images/sample1.jpg" alt="Sample Image 1">
+                    <p>JPEG Image (image/jpeg)</p>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="/images/sample2.png" alt="Sample Image 2">
+                    <p>PNG Image (image/png)</p>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="/images/sample3.gif" alt="Sample Image 3">
+                    <p>GIF Image (image/gif)</p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h3>MIME Type Detection:</h3>
+                <ul>
+                    <li>.jpg / .jpeg → image/jpeg</li>
+                    <li>.png → image/png</li>
+                    <li>.gif → image/gif</li>
+                    <li>.html → text/html</li>
+                    <li>.css → text/css</li>
+                    <li>.js → application/javascript</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Webserv Project</p>
+    </footer>
+</body>
+</html>
