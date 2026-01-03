@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Webserv</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">Webserv</div>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/dashboard" class="active">Dashboard</a></li>
+                <li><a href="/profile">Profile</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="form-container">
+            <h1>Welcome, {{USERNAME}}!</h1>
+            <p>You are successfully logged in.</p>
+            
+            <div class="info-box">
+                <h3>Session Info:</h3>
+                <ul>
+                    <li>Session ID: {{SESSION_ID}}</li>
+                    <li>Username: {{USERNAME}}</li>
+                </ul>
+            </div>
+            
+            <a href="/profile" class="btn">View Profile</a>
+            <a href="/logout" class="btn">Logout</a>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Webserv Project</p>
+    </footer>
+</body>
+</html>
