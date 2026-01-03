@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
+/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 21:52:09 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/02 17:42:31 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/03 16:39:45 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,8 @@ class Response
 		std::string	serverName;
 		int			serverPort;
 		std::string	clientIP;
+		std::string rootPath;
+		
 	public:
 		int									statusCode;
 		std::string							fullPath;
@@ -42,6 +44,7 @@ class Response
 		std::string			getServerName();
 		std::string			getServerPort();
 		std::string			getClientIP();
+		std::string			getRootPath();
 };
 
 #endif

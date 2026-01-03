@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
+/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 21:52:35 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/02 17:43:05 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/03 16:44:29 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,9 +30,14 @@ std::string	Response::getClientIP()
 
 Response::Response(Request &req, const LocationConfig &conf, const ServerConfig& servConf, int port, std::string IP)
 {
+	std::string root = conf.getRoot();
+	if (root.empty())
+		root = servConf.getRoot();
+		
 	this->clientIP = IP;
 	this->serverName = servConf.getServerName();
 	this->serverPort = port;
+	this->rootPath = root;
 	this->fullPath = conf.getRoot() + req.path;
 	if (req.headers.find("connection") != req.headers.end())
 		this->headers["Connection"] = req.headers["connection"];
@@ -113,4 +118,8 @@ std::string Response::getReasonPhrase(int statusCode)
 	default:
 		return "Unknown";
 	}
+}
+
+std::string Response::getRootPath() {
+	return rootPath;
 }
