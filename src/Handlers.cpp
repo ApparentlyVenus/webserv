@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Handlers.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
+/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/31 17:38:32 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/03 17:00:22 by odana            ###   ########.fr       */
+/*   Updated: 2026/01/05 00:59:27 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -213,20 +213,14 @@ Response Handlers::router(Response &res, Request &req, const LocationConfig &con
 
 	else if (req.method == "GET")
 		return (handleGet(req, res, conf));
-
-	return (handleDelete(req, res, conf));
+	else if (req.method == "DELETE")
+		return (handleDelete(req, res, conf));
+	return (checkMethodAllowed(res, conf));
 }
 
 Response Handlers::handleGet(Request &req, Response &res, const LocationConfig &conf)
 {
 	std::stringstream	ss;
-
-	if (req.path == "/dashboard")
-        return handleDashboard(req, res, conf);
-    if (req.path == "/profile")
-        return handleProfile(req, res, conf);
-    if (req.path == "/logout")
-        return handleLogout(req, res, conf);
 
 	if (!conf.isMethodAllowed("GET"))
 		return (checkMethodAllowed(res, conf));
@@ -253,6 +247,13 @@ Response Handlers::handleGet(Request &req, Response &res, const LocationConfig &
 		return (Forbidden(res));
 	}
 
+	if (req.path == "/dashboard")
+		return handleDashboard(req, res, conf);
+	if (req.path == "/profile")
+		return handleProfile(req, res, conf);
+	if (req.path == "/logout")
+		return handleLogout(req, res, conf);
+
 	if (conf.isCGI(res.fullPath))
 		return handleCGI(req, res, conf);
 	
@@ -268,9 +269,6 @@ Response Handlers::handlePost(Request &req, Response &res, const LocationConfig 
 	uploadPath = conf.getUploadStore();
 	size_t pos = res.fullPath.find_last_of("/");
 	fileName = res.fullPath.substr(pos + 1);
-
-	if (req.path == "/do_login")
-        return handleLogin(req, res, conf);
 
 	if (!conf.isMethodAllowed("POST"))
 		return (checkMethodAllowed(res, conf));
@@ -289,6 +287,9 @@ Response Handlers::handlePost(Request &req, Response &res, const LocationConfig 
 
 	if (fileName.empty() || fileName.find("..") != std::string::npos || fileName.length() > 255)
 		return (BadRequest(res, "<html><body><h1>400 Bad Request - Invalid filename</h1></body></html>"));
+
+	if (req.path == "/do_login")
+		return handleLogin(req, res, conf);
 
 	if (conf.isCGI(res.fullPath))
 		return handleCGI(req, res, conf);
@@ -327,16 +328,19 @@ Response Handlers::handleDelete(Request &req, Response &res, const LocationConfi
 	return (DeleteSuccess(res));
 }
 
-Response Handlers::handleDashboard(Request& req, Response& res, const LocationConfig& config) {
-	Session* sess = NULL;
+static Response handleDashboard(Request &req, Response &res, const LocationConfig &config)
+{
+	Session *sess = NULL;
 
-	if (req.cookies.find("SESSID") != req.cookies.end()) {
+	if (req.cookies.find("SESSID") != req.cookies.end())
+	{
 		sess = SessionManager::getSession(req.cookies["SESSID"]);
 		if (sess)
 			SessionManager::touchSession(sess->sessionId);
 	}
 
-	if (!sess || sess->data.find("logged_in") == sess->data.end()) {
+	if (!sess || sess->data.find("logged_in") == sess->data.end())
+	{
 		res.statusCode = 302;
 		res.headers["Location"] = "/login.html";
 		res.headers["Content-Length"] = "0";
@@ -346,17 +350,17 @@ Response Handlers::handleDashboard(Request& req, Response& res, const LocationCo
 
 	std::string templatePath = res.getRootPath() + "/dashboard.html";
 	std::string htmlTemplate = readFile(templatePath);
-	
+
 	if (htmlTemplate.empty())
 		return InternalServerError(res);
 
 	std::string html = replaceAll(htmlTemplate, "{{USERNAME}}", sess->data["username"]);
-    html = replaceAll(html, "{{SESSION_ID}}", sess->sessionId);
+	html = replaceAll(html, "{{SESSION_ID}}", sess->sessionId);
 
 	res.statusCode = 200;
 	res.body = html;
 	res.headers["Content-Type"] = "test/html";
-	
+
 	std::stringstream ss;
 	ss << res.body.length();
 	res.headers["Content-Length"] = ss.str();
@@ -364,41 +368,45 @@ Response Handlers::handleDashboard(Request& req, Response& res, const LocationCo
 	return res;
 }
 
-Response Handlers::handleProfile(Request &req, Response &res, const LocationConfig &config) {
-	Session* sess = NULL;
+static Response handleProfile(Request &req, Response &res, const LocationConfig &config)
+{
+	Session *sess = NULL;
 
-	if (req.cookies.find("SESSID") != req.cookies.end()) {
+	if (req.cookies.find("SESSID") != req.cookies.end())
+	{
 		sess = SessionManager::getSession(req.cookies["SESSID"]);
 		if (sess)
 			SessionManager::touchSession(sess->sessionId);
 	}
-	
-	if (!sess || sess->data.find("logged_in") == sess->data.end()) {
-        res.statusCode = 302;
-        res.headers["Location"] = "/login.html";
-        res.headers["Content-Length"] = "0";
-        res.body = "";
-        return res;
-    }
+
+	if (!sess || sess->data.find("logged_in") == sess->data.end())
+	{
+		res.statusCode = 302;
+		res.headers["Location"] = "/login.html";
+		res.headers["Content-Length"] = "0";
+		res.body = "";
+		return res;
+	}
 
 	int visits = 1;
-	if (sess->data.find("visits") != sess->data.end()) {
+	if (sess->data.find("visits") != sess->data.end())
+	{
 		visits = std::atoi(sess->data["visits"].c_str()) + 1;
 	}
-	
+
 	std::stringstream vistStream;
 	vistStream << visits;
 	sess->data["visits"] = vistStream.str();
-	
-	std::string templatePath = res.getRootPath() + "/profile.html";
-    std::string htmlTemplate = readFile(templatePath);
 
-	if (htmlTemplate.empty()) 
+	std::string templatePath = res.getRootPath() + "/profile.html";
+	std::string htmlTemplate = readFile(templatePath);
+
+	if (htmlTemplate.empty())
 		return InternalServerError(res);
-	
+
 	std::string html = replaceAll(htmlTemplate, "{{USERNAME}}", sess->data["username"]);
-    html = replaceAll(html, "{{SESSION_ID}}", sess->sessionId);
-    html = replaceAll(html, "{{VISITS}}", vistStream.str());
+	html = replaceAll(html, "{{SESSION_ID}}", sess->sessionId);
+	html = replaceAll(html, "{{VISITS}}", vistStream.str());
 
 	res.statusCode = 200;
 	res.body = html;
@@ -411,46 +419,51 @@ Response Handlers::handleProfile(Request &req, Response &res, const LocationConf
 	return res;
 }
 
-Response Handlers::handleLogin(Request &req, Response &res, const LocationConfig &conf) {
-    std::string username = "";
-    size_t pos = req.body.find("username=");
-    if (pos != std::string::npos) {
-        size_t start = pos + 9; // this gets the length of the username
-        size_t end = req.body.find("&", start);
-        if (end == std::string::npos)
-            end = req.body.length();
-        username = req.body.substr(start, end - start);
-    }
-    
-    if (username.empty()) {
-        return BadRequest(res, "<html><body><h1>Username required</h1></body></html>");
-    }
-    
-    std::string sessionId = SessionManager::createSession();
-    Session* sess = SessionManager::getSession(sessionId);
-    sess->data["username"] = username;
-    sess->data["logged_in"] = "true";
-    
-    std::string cookie = "SESSID=" + sessionId + "; Path=/; Max-Age=3600; HttpOnly";
-    res.setCookies.push_back(cookie);
-    
-    res.statusCode = 302;
-    res.headers["Location"] = "/dashboard";
-    res.headers["Content-Length"] = "0";
-    res.body = "";
-    
-    return res;
+static Response handleLogin(Request &req, Response &res, const LocationConfig &conf)
+{
+	std::string username = "";
+	size_t pos = req.body.find("username=");
+	if (pos != std::string::npos)
+	{
+		size_t start = pos + 9; // this gets the length of the username
+		size_t end = req.body.find("&", start);
+		if (end == std::string::npos)
+			end = req.body.length();
+		username = req.body.substr(start, end - start);
+	}
+
+	if (username.empty())
+	{
+		return BadRequest(res, "<html><body><h1>Username required</h1></body></html>");
+	}
+
+	std::string sessionId = SessionManager::createSession();
+	Session *sess = SessionManager::getSession(sessionId);
+	sess->data["username"] = username;
+	sess->data["logged_in"] = "true";
+
+	std::string cookie = "SESSID=" + sessionId + "; Path=/; Max-Age=3600; HttpOnly";
+	res.setCookies.push_back(cookie);
+
+	res.statusCode = 302;
+	res.headers["Location"] = "/dashboard";
+	res.headers["Content-Length"] = "0";
+	res.body = "";
+
+	return res;
 }
 
-Response Handlers::handleLogout(Request &req, Response &res, const LocationConfig &conf) {
-    if (req.cookies.find("SESSID") != req.cookies.end()) {
-        SessionManager::destroySession(req.cookies["SESSID"]);
-    }
-    
-    res.statusCode = 302;
-    res.headers["Location"] = "/";
-    res.headers["Content-Length"] = "0";
-    res.body = "";
-    
-    return res;
+static Response handleLogout(Request &req, Response &res, const LocationConfig &conf)
+{
+	if (req.cookies.find("SESSID") != req.cookies.end())
+	{
+		SessionManager::destroySession(req.cookies["SESSID"]);
+	}
+
+	res.statusCode = 302;
+	res.headers["Location"] = "/";
+	res.headers["Content-Length"] = "0";
+	res.body = "";
+
+	return res;
 }
