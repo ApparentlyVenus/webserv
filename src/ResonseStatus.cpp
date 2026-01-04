@@ -6,13 +6,13 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/31 19:11:29 by yitani            #+#    #+#             */
-/*   Updated: 2025/12/31 20:02:26 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/05 01:11:13 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/ResponseStatus.hpp"
 
-Response checkMethodAllowed(Response &res, const LocationConfig &conf)
+Response checkMethodAllowed(Response &res)
 {
 	std::stringstream	ss;
 

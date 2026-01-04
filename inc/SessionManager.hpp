@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   SessionManager.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
+/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:20:15 by odana             #+#    #+#             */
-/*   Updated: 2026/01/02 11:53:40 by odana            ###   ########.fr       */
+/*   Updated: 2026/01/05 01:03:39 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include <string>
 # include <map>
+# include <ctime>
 
 struct Session {
     std::string sessionId;
