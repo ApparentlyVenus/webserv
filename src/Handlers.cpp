@@ -6,13 +6,11 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/31 17:38:32 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/05 01:18:23 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/05 14:08:14 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Handlers.hpp"
-
-Handlers::~Handlers() {}
 
 static Session *loadSession(Request &req, Response &res, bool createIfMissing)
 {
@@ -163,6 +161,43 @@ static Response handleLogout(Request &req, Response &res)
 	return res;
 }
 
+static void	setUpPath(std::string &scriptName, std::string &pathInfo, const std::string &reqPath, const std::string &root)
+{
+	std::vector<std::string>	splitted = split(reqPath, '/');
+	size_t						i = 0;
+	std::stringstream			ss;
+	std::stringstream			pathSS;
+
+	while (i < splitted.size())
+	{
+		if (splitted[i].empty())
+		{
+			i++;
+			continue ;
+		}
+		if (fileExists(root + ss.str()) && !isDirectory(root + ss.str()))
+		{
+			scriptName = ss.str();
+			i++;
+			break ;
+		}
+		ss << "/" << splitted[i];
+		i++;
+	}
+
+	while (i < splitted.size())
+	{
+		if (splitted[i].empty())
+		{
+			i++;
+			continue ;
+		}
+		pathSS << "/" << splitted[i];
+		i++;
+	}
+	pathInfo = pathSS.str();
+}
+
 static std::vector<std::string>	SetUpEnv(Request &req, Response &res)
 {
 	std::vector<std::string>						envStrings;
@@ -170,12 +205,18 @@ static std::vector<std::string>	SetUpEnv(Request &req, Response &res)
 	
 	envStrings.push_back("REQUEST_METHOD=" + req.method);
 	envStrings.push_back("QUERY_STRING=" + req.query);
-	envStrings.push_back("SCRIPT_NAME=" + req.path);
 	envStrings.push_back("SERVER_PROTOCOL=HTTP/1.1");
 	envStrings.push_back("GATEWAY_INTERFACE=CGI/1.1");
 	envStrings.push_back("SERVER_NAME=" + res.getServerName());
 	envStrings.push_back("SERVER_PORT=" + res.getServerPort());
 	envStrings.push_back("REMOTE_ADDR=" + res.getClientIP());
+	std::string	scriptName;
+	std::string	pathInfo;
+	setUpPath(scriptName, pathInfo, req.path, res.getRootPath());
+	envStrings.push_back("SCRIPT_NAME=" + scriptName);
+	envStrings.push_back("PATH_INFO=" + pathInfo);
+	envStrings.push_back("SCRIPT_FILENAME=" + res.getRootPath() + scriptName);
+	envStrings.push_back("PATH_TRANSLATED=" + res.getRootPath() + pathInfo);
 
 	for (it = req.headers.begin(); it != req.headers.end(); ++it)
 	{
