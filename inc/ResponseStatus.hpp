@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ResponseStatus.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
+/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/31 19:11:54 by yitani            #+#    #+#             */
-/*   Updated: 2025/12/31 19:53:55 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/07 11:23:02 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 # include <dirent.h>
 # include <sys/types.h>
 
-Response checkMethodAllowed(Response &res, const LocationConfig &conf);
+Response    checkMethodAllowed(Response &res);
 Response	NotFound(Response &res);
 Response	Forbidden(Response &res);
 Response	GetSuccess(Response &res, const std::string& filepath);

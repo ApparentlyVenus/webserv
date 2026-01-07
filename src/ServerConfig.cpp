@@ -6,11 +6,34 @@
 /*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/22 09:10:18 by odana             #+#    #+#             */
-/*   Updated: 2026/01/02 10:30:49 by odana            ###   ########.fr       */
+/*   Updated: 2026/01/07 11:17:35 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ServerConfig.hpp"
+
+ServerConfig::ServerConfig() : ip("0.0.0.0"), serverName(""), root(""), clientMaxBodySize(1048576) {}
+
+ServerConfig::ServerConfig(const ServerConfig& other) 
+    : ports(other.ports), ip(other.ip), serverName(other.serverName), 
+      root(other.root), clientMaxBodySize(other.clientMaxBodySize),
+      errorPages(other.errorPages), locations(other.locations) {}
+
+ServerConfig& ServerConfig::operator=(const ServerConfig& other) {
+    if (this != &other) {
+        ports = other.ports;
+        ip = other.ip;
+        serverName = other.serverName;
+        root = other.root;
+        clientMaxBodySize = other.clientMaxBodySize;
+        errorPages = other.errorPages;
+        locations = other.locations;
+    }
+    return *this;
+}
+
+ServerConfig::~ServerConfig() {}
+
 
 std::vector<int> ServerConfig::getPorts() const {
     return ports;
@@ -90,4 +113,32 @@ bool ServerConfig::isValid() const {
     }
 
     return true;
+}
+
+void ServerConfig::addPort(int port) {
+    ports.push_back(port);
+}
+
+void ServerConfig::setIP(const std::string& newIp) {
+    ip = newIp;
+}
+
+void ServerConfig::setServerName(const std::string& name) {
+    serverName = name;
+}
+
+void ServerConfig::setRoot(const std::string& newRoot) {
+    root = newRoot;
+}
+
+void ServerConfig::setClientMaxBodySize(int size) {
+    clientMaxBodySize = size;
+}
+
+void ServerConfig::addErrorPage(int code, const std::string& path) {
+    errorPages[code] = path;
+}
+
+void ServerConfig::addLocation(const LocationConfig& loc) {
+    locations.push_back(loc);
 }

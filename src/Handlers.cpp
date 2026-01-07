@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Handlers.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
+/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/31 17:38:32 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/05 14:08:14 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/07 11:23:39 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -382,7 +382,7 @@ Response Handlers::router(Response &res, Request &req, const LocationConfig &con
 		return (handleGet(req, res, conf));
 	else if (req.method == "DELETE")
 		return (handleDelete(res, conf));
-	return (checkMethodAllowed(res, conf));
+	return (checkMethodAllowed(res));
 }
 
 Response Handlers::handleGet(Request &req, Response &res, const LocationConfig &conf)
@@ -390,7 +390,7 @@ Response Handlers::handleGet(Request &req, Response &res, const LocationConfig &
 	std::stringstream	ss;
 
 	if (!conf.isMethodAllowed("GET"))
-		return (checkMethodAllowed(res, conf));
+		return (checkMethodAllowed(res));
 
 	if (!fileExists(res.fullPath))
 		return (NotFound(res));
@@ -438,7 +438,7 @@ Response Handlers::handlePost(Request &req, Response &res, const LocationConfig 
 	fileName = res.fullPath.substr(pos + 1);
 
 	if (!conf.isMethodAllowed("POST"))
-		return (checkMethodAllowed(res, conf));
+		return (checkMethodAllowed(res));
 
 	if (!conf.isUploadEnable())
 		return (Forbidden(res));
@@ -474,7 +474,7 @@ Response Handlers::handlePost(Request &req, Response &res, const LocationConfig 
 Response Handlers::handleDelete(Response &res, const LocationConfig &conf)
 {
 	if (!conf.isMethodAllowed("DELETE"))
-		return (checkMethodAllowed(res, conf));
+		return (checkMethodAllowed(res));
 		
 	if (!fileExists(res.fullPath))
 		return (NotFound(res));

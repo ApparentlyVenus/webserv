@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   SessionManager.hpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
+/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:20:15 by odana             #+#    #+#             */
-/*   Updated: 2026/01/05 01:03:39 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/07 11:14:51 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ struct Session {
     time_t lastAccess;
     std::map<std::string, std::string> data;
 
+    Session();
     Session(const std::string& id);
 
 };
