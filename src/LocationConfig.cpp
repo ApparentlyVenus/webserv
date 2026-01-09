@@ -136,7 +136,11 @@ bool LocationConfig::isCGI(const std::string &path) const
 	if (cgiExtension.empty())
 		return (false);
 
-	std::string ext = getMimeType(path);
+	size_t dot = path.find_last_of('.');
+	if (dot == std::string::npos)
+		return (false);
+
+	std::string ext = path.substr(dot);
 
 	for (size_t i = 0; i < cgiExtension.size(); i++)
 	{

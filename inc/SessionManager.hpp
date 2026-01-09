@@ -1,5 +1,18 @@
-#ifndef SESSIONMANAGER_HPP
-#define SESSIONMANAGER_HPP
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   SessionManager.hpp                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/02 11:20:15 by odana             #+#    #+#             */
+/*   Updated: 2026/01/05 01:03:39 by yitani           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#ifndef SESSION_MANAGER_HPP
+# define SESSION_MANAGER_HPP
+
 
 #include <string>
 #include <map>
@@ -12,10 +25,7 @@ struct Session
     time_t createdAt;
     time_t lastAccess;
     
-    // ✅ Add default constructor
     Session();
-    
-    // Keep your existing constructor
     Session(const std::string& id);
 };
 

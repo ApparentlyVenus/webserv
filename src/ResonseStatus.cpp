@@ -12,7 +12,7 @@
 
 #include "../inc/ResponseStatus.hpp"
 
-Response checkMethodAllowed(Response &res, const LocationConfig &conf)
+Response checkMethodAllowed(Response &res,const LocationConfig &conf)
 {
 	std::stringstream	ss;
 	(void)conf;

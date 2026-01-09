@@ -1,9 +1,8 @@
 #include "Client.hpp"
 
 Client::Client(int fd, const std::string& ip, int port)
-    : fd(fd), clientIP(ip), serverPort(port), bytesSent(0), state(CLIENT_READING)
+    : fd(fd), clientIP(ip), serverPort(port), bytesSent(0)
 {
-    lastActivity = time(NULL);
 }
 
 Client::~Client()
@@ -41,25 +40,7 @@ size_t Client::getBytesSent() const
     return bytesSent;
 }
 
-time_t Client::getLastActivity() const
-{
-    return lastActivity;
-}
 
-void Client::updateLastActivity()
-{
-    lastActivity = time(NULL);
-}
-
-void Client::setState(ClientState s)
-{
-    state = s;
-}
-
-ClientState Client::getState() const
-{
-    return state;
-}
 
 std::string Client::getClientIP() const
 {

@@ -36,84 +36,33 @@ typedef struct ListeningSocket
 	int port;
 } LSocket;
 
-// class Server
-// {
-// 	private:
-// 		std::vector<ServerConfig> configs;
-// 		std::map<int, std::vector<ServerConfig *>> serversByPort;
-// 		std::vector<LSocket> LSockets;
-// 		std::vector<struct pollfd> pollFds;
-// 		std::map<int, Client *> clients;
-// 		bool is_server_running;
-
-// 		int createServerSocket(int port, const std::string &ip);
-// 		void setNonBlocking(int fd);
-// 		void setupServerSockets();
-// 		void indexServerConfigs();
-//     void acceptNewConnection(int serverFd);
-//     void handleClientRead(int clientFd);
-//     void handleClientWrite(int clientFd);
-//     void closeClient(int clientFd);
-//     void cleanupTimeouts();
-
-
-
-// 	void run();
-// };
-
-
 
 class Server
 {
     private:
-        std::vector<ServerConfig> configs;
-        std::map<int, std::vector<ServerConfig *> > serversByPort;
-        std::vector<LSocket> LSockets;
+        ServerConfig config; //single server block
+        std::vector<LSocket> LSockets;//vector of all open sockets
         std::vector<struct pollfd> pollFds;
         std::map<int, Client *> clients;
         bool is_server_running;
 
-        /* ---------- Socket setup ---------- */
-        int createServerSocket(int port, const std::string &ip);
+       int createServerSocket(int port, const std::string &ip);
         void setNonBlocking(int fd);
         void setupServerSockets();
-        void indexServerConfigs();
 
-        /* ---------- Poll loop helpers ---------- */
         void acceptNewConnection(int serverFd);
         void handleClientRead(int clientFd);
         void handleClientWrite(int clientFd);
         void closeClient(int clientFd);
-        void cleanupTimeouts();
 
-        /* ---------- Request processing ---------- */
-        ServerConfig* findServerConfig(int port, const std::string& host);
-        std::string processRequest(const Request& request,
-                                   ServerConfig* serverConfig,
-                                   const LocationConfig* locationConfig,
-                                   const std::string& clientIP,
-                                   int serverPort);
-        std::string buildResponse(int statusCode,
-                                 const std::string& body,
-                                 const std::string& contentType);
+        ServerConfig* getServerConfig();
 
     public:
         Server();
-        Server(const std::vector<ServerConfig>& configs);
+        Server(const ServerConfig& config);
         ~Server();
 
-        /* ---------- Main methods ---------- */
         void run();
-        void stop();
-        
-        /* ---------- Configuration ---------- */
-        void addConfig(const ServerConfig& config);
-        void setConfigs(const std::vector<ServerConfig>& configs);
-        std::vector<ServerConfig> getConfigs() const;
-        
-        /* ---------- Status ---------- */
-        bool isRunning() const;
-        size_t getClientCount() const;
 };
 
 #endif

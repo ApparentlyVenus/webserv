@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wasmar <wasmar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 21:52:35 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/02 22:31:46 by wasmar           ###   ########.fr       */
+/*   Updated: 2026/01/02 17:43:05 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,10 +30,23 @@ std::string	Response::getClientIP()
 
 Response::Response(Request &req, const LocationConfig &conf, const ServerConfig& servConf, int port, std::string IP)
 {
+	std::string root = conf.getRoot();
+	if (root.empty())
+		root = servConf.getRoot();
+
 	this->clientIP = IP;
 	this->serverName = servConf.getServerName();
 	this->serverPort = port;
-	this->fullPath = conf.getRoot() + req.path;
+	this->rootPath = root;
+
+	std::string locationPath = conf.getPath();
+	std::string requestPath = req.path;
+	std::string relativePath = requestPath;
+
+	if (requestPath.find(locationPath) == 0 && locationPath != "/")
+		relativePath = requestPath.substr(locationPath.length());
+
+	this->fullPath = root + relativePath;
 	if (req.headers.find("connection") != req.headers.end())
 		this->headers["Connection"] = req.headers["connection"];
 	else
@@ -114,12 +127,6 @@ std::string Response::getReasonPhrase(int statusCode)
 		return "Unknown";
 	}
 }
-
-// request::parse(...)
-// response::response(......)
-// if res == incomplete continue
-// if res != error
-//{
-	// Handlers::router(..)
-// }
-// str = res::format(...)
+std::string Response::getRootPath() {
+	return rootPath;
+}

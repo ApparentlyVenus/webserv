@@ -6,36 +6,209 @@
 /*   By: wasmar <wasmar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/31 17:38:32 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/02 22:37:35 by wasmar           ###   ########.fr       */
+/*   Updated: 2026/01/05 14:08:14 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Handlers.hpp"
 
-Handlers::~Handlers() {}
+static Session *loadSession(Request &req, Response &res, bool createIfMissing)
+{
+	(void)res;
+	(void)createIfMissing;
+	if (req.cookies.find("SESSID") != req.cookies.end())
+	{
+		Session *sess = SessionManager::getSession(req.cookies["SESSID"]);
+		if (sess)
+		{
+			SessionManager::touchSession(sess->sessionId);
+			return sess;
+		}
+	}
+	return NULL;
+}
 
-// static Session *loadSession(Request &req, Response &res, bool createIfMissing)
-// {
-// 	if (req.cookies.find("SESSID") != req.cookies.end())
-// 	{
-// 		Session *sess = SessionManager::getSession(req.cookies["SESSID"]);
-// 		if (sess)
-// 		{
-// 			SessionManager::touchSession(sess->sessionId);
-// 			return sess;
-// 		}
-// 	}
+static Response handleDashboard(Request &req, Response &res)
+{
+	Session* sess = loadSession(req, res, false);
 
-// 	if (createIfMissing)
-// 	{
-// 		std::string newId = SessionManager::createSession();
-// 		std::string cookie = "SESSID=" + newId + "; Path=/; Max-Age=3600; HttpOnly";
-// 		res.setCookies.push_back(cookie);
-// 		return SessionManager::getSession(newId);
-// 	}
+	if (!sess || sess->data.find("logged_in") == sess->data.end())
+	{
+		res.statusCode = 302;
+		res.headers["Location"] = "/login.html";
+		res.headers["Content-Length"] = "0";
+		res.body = "";
+		return res;
+	}
 
-// 	return NULL;
-// }
+	std::string templatePath = res.getRootPath() + "/dashboard.html";
+	std::string htmlTemplate = readFile(templatePath);
+
+	if (htmlTemplate.empty())
+		return InternalServerError(res);
+
+	std::string html = replaceAll(htmlTemplate, "{{USERNAME}}", sess->data["username"]);
+	html = replaceAll(html, "{{SESSION_ID}}", sess->sessionId);
+
+	res.statusCode = 200;
+	res.body = html;
+	res.headers["Content-Type"] = "text/html";
+
+	std::stringstream ss;
+	ss << res.body.length();
+	res.headers["Content-Length"] = ss.str();
+
+	return res;
+}
+
+static Response handleProfile(Request &req, Response &res)
+{
+	Session* sess = loadSession(req, res, false);
+
+	if (!sess || sess->data.find("logged_in") == sess->data.end())
+	{
+		res.statusCode = 302;
+		res.headers["Location"] = "/login.html";
+		res.headers["Content-Length"] = "0";
+		res.body = "";
+		return res;
+	}
+
+	int visits = 1;
+	if (sess->data.find("visits") != sess->data.end())
+	{
+		visits = std::atoi(sess->data["visits"].c_str()) + 1;
+	}
+
+	std::stringstream vistStream;
+	vistStream << visits;
+	sess->data["visits"] = vistStream.str();
+
+	std::string templatePath = res.getRootPath() + "/profile.html";
+	std::string htmlTemplate = readFile(templatePath);
+
+	if (htmlTemplate.empty())
+		return InternalServerError(res);
+
+	std::string html = replaceAll(htmlTemplate, "{{USERNAME}}", sess->data["username"]);
+	html = replaceAll(html, "{{SESSION_ID}}", sess->sessionId);
+	html = replaceAll(html, "{{VISITS}}", vistStream.str());
+
+	res.statusCode = 200;
+	res.body = html;
+	res.headers["Content-Type"] = "text/html";
+
+	std::stringstream ss;
+	ss << res.body.length();
+	res.headers["Content-Length"] = ss.str();
+
+	return res;
+}
+
+static Response handleLogin(Request &req, Response &res)
+{
+	std::string username = "";
+	size_t pos = req.body.find("username=");
+	if (pos != std::string::npos)
+	{
+		size_t start = pos + 9;
+		size_t end = req.body.find("&", start);
+		if (end == std::string::npos)
+			end = req.body.length();
+		username = req.body.substr(start, end - start);
+	}
+
+	if (username.empty())
+	{
+		return BadRequest(res, "<html><body><h1>Username required</h1></body></html>");
+	}
+
+	std::string sessionId = SessionManager::createSession();
+	Session *sess = SessionManager::getSession(sessionId);
+	sess->data["username"] = username;
+	sess->data["logged_in"] = "true";
+
+	std::string cookie = "SESSID=" + sessionId + "; Path=/; Max-Age=3600; HttpOnly";
+	res.setCookies.push_back(cookie);
+
+	res.statusCode = 302;
+	res.headers["Location"] = "/dashboard";
+	res.headers["Content-Length"] = "0";
+	res.body = "";
+
+	return res;
+}
+
+static Response handleLogout(Request &req, Response &res)
+{
+	if (req.cookies.find("SESSID") != req.cookies.end())
+	{
+		SessionManager::destroySession(req.cookies["SESSID"]);
+	}
+
+	res.statusCode = 302;
+	res.headers["Location"] = "/";
+	res.headers["Content-Length"] = "0";
+	res.body = "";
+
+	return res;
+}
+
+static void	setUpPath(std::string &scriptName, std::string &pathInfo, const std::string &fullPath, const std::string &root)
+{
+	// fullPath is already the complete file path (e.g., www/cgi-bin/env.pl)
+	// We need to extract the script name relative to root and any path info
+
+	// Find where the actual script file is
+	std::string testPath = fullPath;
+	scriptName = "";
+	pathInfo = "";
+
+	// Check if fullPath itself is a file
+	if (fileExists(testPath) && !isDirectory(testPath))
+	{
+		// Extract script name relative to root
+		if (testPath.find(root) == 0)
+		{
+			scriptName = testPath.substr(root.length());
+		}
+		return;
+	}
+
+	// Try to find the script file by removing path segments from the end
+	std::vector<std::string>	splitted = split(fullPath, '/');
+	size_t						i = splitted.size();
+	std::stringstream			pathSS;
+
+	while (i > 0)
+	{
+		i--;
+		testPath = "";
+		for (size_t j = 0; j < i; j++)
+		{
+			if (!splitted[j].empty())
+				testPath += "/" + splitted[j];
+		}
+
+		if (fileExists(testPath) && !isDirectory(testPath))
+		{
+			// Found the script file
+			if (testPath.find(root) == 0)
+			{
+				scriptName = testPath.substr(root.length());
+			}
+
+			// Rest is path info
+			for (size_t j = i; j < splitted.size(); j++)
+			{
+				if (!splitted[j].empty())
+					pathSS << "/" << splitted[j];
+			}
+			pathInfo = pathSS.str();
+			return;
+		}
+	}
+}
 
 static std::vector<std::string>	SetUpEnv(Request &req, Response &res)
 {
@@ -44,12 +217,19 @@ static std::vector<std::string>	SetUpEnv(Request &req, Response &res)
 	
 	envStrings.push_back("REQUEST_METHOD=" + req.method);
 	envStrings.push_back("QUERY_STRING=" + req.query);
-	envStrings.push_back("SCRIPT_NAME=" + req.path);
 	envStrings.push_back("SERVER_PROTOCOL=HTTP/1.1");
 	envStrings.push_back("GATEWAY_INTERFACE=CGI/1.1");
 	envStrings.push_back("SERVER_NAME=" + res.getServerName());
 	envStrings.push_back("SERVER_PORT=" + res.getServerPort());
 	envStrings.push_back("REMOTE_ADDR=" + res.getClientIP());
+	envStrings.push_back("REDIRECT_STATUS=200");
+	std::string	scriptName;
+	std::string	pathInfo;
+	setUpPath(scriptName, pathInfo, res.fullPath, res.getRootPath());
+	envStrings.push_back("SCRIPT_NAME=" + scriptName);
+	envStrings.push_back("PATH_INFO=" + pathInfo);
+	envStrings.push_back("SCRIPT_FILENAME=" + res.fullPath);
+	envStrings.push_back("PATH_TRANSLATED=" + res.getRootPath() + pathInfo);
 
 	for (it = req.headers.begin(); it != req.headers.end(); ++it)
 	{
@@ -164,11 +344,19 @@ static Response	handleCGI(Request &req, Response &res, const LocationConfig &con
 			return InternalServerError(res);
 
 		size_t	headersEnd = output.find("\r\n\r\n");
+		size_t	headerLen = 4;
+
+		if (headersEnd == std::string::npos)
+		{
+			headersEnd = output.find("\n\n");
+			headerLen = 2;
+		}
+
 		if (headersEnd == std::string::npos)
 			return InternalServerError(res);
-		
+
 		std::string	headers = output.substr(0, headersEnd);
-		std::string	body = output.substr(headersEnd + 4);
+		std::string	body = output.substr(headersEnd + headerLen);
 		std::vector<std::string> splitHeaders = split(headers, '\n');
 		for (size_t i = 0; i < splitHeaders.size(); i++)
 		{
@@ -213,8 +401,9 @@ Response Handlers::router(Response &res, Request &req, const LocationConfig &con
 
 	else if (req.method == "GET")
 		return (handleGet(req, res, conf));
-
-	return (handleDelete(req, res, conf));
+	else if (req.method == "DELETE")
+		return (handleDelete(res, conf));
+	return (checkMethodAllowed(res, conf));
 }
 
 Response Handlers::handleGet(Request &req, Response &res, const LocationConfig &conf)
@@ -246,6 +435,13 @@ Response Handlers::handleGet(Request &req, Response &res, const LocationConfig &
 		return (Forbidden(res));
 	}
 
+	if (req.path == "/dashboard")
+		return handleDashboard(req, res);
+	if (req.path == "/profile")
+		return handleProfile(req, res);
+	if (req.path == "/logout")
+		return handleLogout(req, res);
+
 	if (conf.isCGI(res.fullPath))
 		return handleCGI(req, res, conf);
 	
@@ -255,19 +451,23 @@ Response Handlers::handleGet(Request &req, Response &res, const LocationConfig &
 Response Handlers::handlePost(Request &req, Response &res, const LocationConfig &conf)
 {
 	std::stringstream ss;
-	std::string uploadPath;
-	std::string fileName;
-
-	uploadPath = conf.getUploadStore();
-	size_t pos = res.fullPath.find_last_of("/");
-	fileName = res.fullPath.substr(pos + 1);
 
 	if (!conf.isMethodAllowed("POST"))
 		return (checkMethodAllowed(res, conf));
 
+	// Handle special routes first (before upload checks)
+	if (req.path == "/do_login")
+		return handleLogin(req, res);
+
+	// Handle CGI scripts (before upload checks)
+	if (conf.isCGI(res.fullPath))
+		return handleCGI(req, res, conf);
+
+	// Everything else is treated as file upload
 	if (!conf.isUploadEnable())
 		return (Forbidden(res));
 
+	std::string uploadPath = conf.getUploadStore();
 	if (!fileExists(uploadPath) || !isDirectory(uploadPath))
 		return (InternalServerError(res));
 
@@ -277,25 +477,51 @@ Response Handlers::handlePost(Request &req, Response &res, const LocationConfig 
 	if (req.body.empty())
 		return (BadRequest(res, "<html><body><h1>400 Bad Request - No data</h1></body></html>"));
 
+	std::string fileName;
+	std::string fileContent;
+
+	// Check if this is a multipart/form-data upload
+	if (req.headers.find("content-type") != req.headers.end())
+	{
+		std::string contentType = req.headers["content-type"];
+		if (contentType.find("multipart/form-data") != std::string::npos)
+		{
+			std::string boundary = extractBoundary(contentType);
+			if (boundary.empty() || !parseMultipartFile(req.body, boundary, fileName, fileContent))
+				return (BadRequest(res, "<html><body><h1>400 Bad Request - Invalid multipart data</h1></body></html>"));
+		}
+		else
+		{
+			// Direct upload - extract filename from URL
+			size_t pos = res.fullPath.find_last_of("/");
+			fileName = res.fullPath.substr(pos + 1);
+			fileContent = req.body;
+		}
+	}
+	else
+	{
+		// No content-type - extract filename from URL
+		size_t pos = res.fullPath.find_last_of("/");
+		fileName = res.fullPath.substr(pos + 1);
+		fileContent = req.body;
+	}
+
 	if (fileName.empty() || fileName.find("..") != std::string::npos || fileName.length() > 255)
 		return (BadRequest(res, "<html><body><h1>400 Bad Request - Invalid filename</h1></body></html>"));
 
-	if (conf.isCGI(res.fullPath))
-		return handleCGI(req, res, conf);
-		
 	std::string finalPath = uploadPath + "/" + fileName;
 	std::ofstream file(finalPath.c_str(), std::ios::binary);
 	if (!file.is_open())
 		return (InternalServerError(res));
 
-	file.write(req.body.c_str(), req.body.length());
+	file.write(fileContent.c_str(), fileContent.length());
 	file.close();
 	return (PostSuccess(res));
 }
 
-Response Handlers::handleDelete(Request &req, Response &res, const LocationConfig &conf)
+Response Handlers::handleDelete(Response &res, const LocationConfig &conf)
 {
-	(void)req;
+	// (void)req;
 	if (!conf.isMethodAllowed("DELETE"))
 		return (checkMethodAllowed(res, conf));
 		

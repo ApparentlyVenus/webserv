@@ -28,19 +28,6 @@
 #include <csignal>
 
 
-// Global server pointer for signal handling (MUST be at the top, before signalHandler)
-Server *g_server = NULL;
-
-// Signal handler function (MUST be declared before main)
-void signalHandler(int signum)
-{
-    std::cout << "\nInterrupt signal (" << signum << ") received." << std::endl;
-    if (g_server)
-    {
-        g_server->stop();
-    }
-}
-
 bool fileExists1(const std::string& path)
 {
     std::ifstream file(path.c_str());
@@ -90,73 +77,42 @@ int main(int argc, char **argv)
     {
         // Parse configuration file
         std::cout << "Parsing configuration file: " << configPath << std::endl;
-        
+
         Tokenizer tokenizer(content);
         std::vector<Token> tokens = tokenizer.tokenize();
 
         Parser parser(tokens);
-        
-        // Parse all server blocks
-        std::vector<ServerConfig> configs;
-        
-        // Try to parse multiple server blocks if present
-        while (!parser.isAtEnd())
+
+        // Parse single server block
+        ServerBlock block = parser.parseServer();
+        ServerConfig config = ConfigFactory::buildServer(block);
+
+        // Validate configuration
+        if (!config.isValid())
         {
-            try
-            {
-                ServerBlock block = parser.parseServer();
-                ServerConfig config = ConfigFactory::buildServer(block);
-                
-                // Validate configuration
-                if (!config.isValid())
-                {
-                    logError3("Invalid server configuration found");
-                    continue;
-                }
-                
-                configs.push_back(config);
-                std::cout << "Loaded server config: " << config.getServerName() 
-                          << " on ports: ";
-                std::vector<int> ports = config.getPorts();
-                for (size_t i = 0; i < ports.size(); i++)
-                {
-                    std::cout << ports[i];
-                    if (i < ports.size() - 1)
-                        std::cout << ", ";
-                }
-                std::cout << std::endl;
-            }
-            catch (const std::exception& e)
-            {
-                // If we already have configs, this might just be end of file
-                if (configs.empty())
-                {
-                    logError3(std::string("Failed to parse server block: ") + e.what());
-                    return 1;
-                }
-                break;
-            }
-        }
-        
-        if (configs.empty())
-        {
-            logError3("No valid server configurations found");
+            logError3("Invalid server configuration");
             return 1;
         }
 
-        std::cout << "Successfully loaded " << configs.size() << " server configuration(s)" << std::endl;
-        
+        std::cout << "Loaded server config: " << config.getServerName()
+                  << " on ports: ";
+        std::vector<int> ports = config.getPorts();
+        for (size_t i = 0; i < ports.size(); i++)
+        {
+            std::cout << ports[i];
+            if (i < ports.size() - 1)
+                std::cout << ", ";
+        }
+        std::cout << std::endl;
+
+        std::cout << "Successfully loaded server configuration" << std::endl;
+
         // Create and run server
-        Server server(configs);
-        g_server = &server;  // Now this will work
-        
-        // Setup signal handlers for graceful shutdown
-        signal(SIGINT, signalHandler);   // Now signalHandler is declared
-        signal(SIGTERM, signalHandler);
+        Server server(config);
+
         
         std::cout << "\n========================================" << std::endl;
         std::cout << "Starting web server..." << std::endl;
-        std::cout << "Press Ctrl+C to stop" << std::endl;
         std::cout << "========================================\n" << std::endl;
         
         // Run the server (blocking call)

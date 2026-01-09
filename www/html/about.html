@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Webserv</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">Webserv</div>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/login.html">Login</a></li>
+                <li><a href="/upload.html">Upload</a></li>
+                <li><a href="/gallery.html">Gallery</a></li>
+                <li><a href="/about.html" class="active">About</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="about-section">
+            <h1>About Webserv</h1>
+            
+            <div class="about-content">
+                <h2>Project Overview</h2>
+                <p>Webserv is a custom HTTP/1.1 web server implementation built from scratch in C++98. 
+                   It demonstrates deep understanding of network programming, HTTP protocol, and 
+                   non-blocking I/O operations.</p>
+
+                <h2>Technical Stack</h2>
+                <ul>
+                    <li><strong>Language:</strong> C++98</li>
+                    <li><strong>Protocol:</strong> HTTP/1.1 (RFC 2616)</li>
+                    <li><strong>I/O Model:</strong> Non-blocking with poll()</li>
+                    <li><strong>CGI:</strong> RFC 3875 compliant</li>
+                </ul>
+
+                <h2>Architecture</h2>
+                <p>The server follows a modular architecture with clear separation of concerns:</p>
+                <ul>
+                    <li><strong>Configuration Module:</strong> Parse NGINX-style config files</li>
+                    <li><strong>Server Core:</strong> Socket management and event loop</li>
+                    <li><strong>Protocol Module:</strong> HTTP parsing and response formatting</li>
+                    <li><strong>Application Module:</strong> Request routing and handlers</li>
+                    <li><strong>Utility Module:</strong> String/file operations, logging</li>
+                </ul>
+
+                <h2>Team</h2>
+                <p>Developed by odana, yitani, and wasmar and team as part of the 42 curriculum.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Webserv Project</p>
+    </footer>
+</body>
+</html>

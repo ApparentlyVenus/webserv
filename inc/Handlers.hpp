@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Handlers.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
+/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/01 10:25:00 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/02 11:23:38 by odana            ###   ########.fr       */
+/*   Updated: 2026/01/05 01:09:57 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,8 @@ class Handlers
 	public:
 		static Response handleGet(Request &req, Response &res, const LocationConfig &conf);
 		static Response handlePost(Request &req, Response &res, const LocationConfig &conf);
-		static Response handleDelete(Request &req, Response &res, const LocationConfig &conf);
-
+		static Response handleDelete(Response &res, const LocationConfig &conf);
+			
 		static Response router(Response &res, Request &req, const LocationConfig &conf);
 
 	private:
