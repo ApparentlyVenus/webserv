@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 19:05:00 by odana             #+#    #+#             */
-/*   Updated: 2026/01/15 19:21:33 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/15 21:34:22 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ ConfigFactory::~ConfigFactory() {}
 void ConfigFactory::processServerDirective(ServerConfig &config, const Directive &dir)
 {
 	std::string key = dir.key.val;
+	static int parsedHost = 0;
 
 	if (key == "listen" || key == "port")
 	{
@@ -39,8 +40,9 @@ void ConfigFactory::processServerDirective(ServerConfig &config, const Directive
 	}
 	else if (key == "host")
 	{
-		if (dir.values.size() != 1)
+		if (dir.values.size() != 1 || parsedHost)
 			throw std::runtime_error("host directive requires exactly one value");
+		parsedHost = 1;
 		config.setIP(dir.values[0].val);
 	}
 	else if (key == "server_name")
