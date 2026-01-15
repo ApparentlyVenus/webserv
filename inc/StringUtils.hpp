@@ -23,9 +23,10 @@ std::string					trim(const std::string& str);
 std::vector<std::string>	split(const std::string& str, char delim);
 std::string					toLower(const std::string& str);
 std::string					toUpper(const std::string &str);
-bool						startsWith(const std::string& str, const std::string& prefix);
 bool                        toBool(const std::string& str);
 int                         toInt(const std::string& str);
 std::string                 replaceAll(const std::string& str, const std::string& find, const std::string& replace);
+std::string					extractBoundary(const std::string &contentType);
+bool						parseMultipartFile(const std::string &body, const std::string &boundary, std::string &filename, std::string &fileContent);
 
 #endif

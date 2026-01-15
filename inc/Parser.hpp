@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parser.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
+/*   By: wasmar <wasmar@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 19:04:45 by odana             #+#    #+#             */
-/*   Updated: 2026/01/02 00:44:07 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/02 22:01:57 by wasmar           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ class Parser
 		Parser(const Parser &other);
 		Parser &operator=(const Parser &other);
 		~Parser();
-
+		bool isAtEnd() const;
 		ServerBlock parseServer();
 		LocationBlock parseLocation();
 		Directive parseDirective();
@@ -71,7 +71,7 @@ class Parser
 		Token expect(TokenType type);
 		Token peek() const;
 		Token consume();
-		bool isAtEnd() const;
+
 };
 
 #endif

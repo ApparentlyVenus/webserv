@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/25 19:57:31 by yitani            #+#    #+#             */
-/*   Updated: 2025/12/26 21:57:35 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/15 18:17:15 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ enum parsingState
 class Request
 {
 	public:
+		Request();
+		~Request();
 		std::string method;
 		std::string path;
 		std::string query;

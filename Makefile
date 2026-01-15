@@ -3,25 +3,27 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: yitani <yitani@student.42.fr>              +#+  +:+       +#+         #
+#    By: wasmar <wasmar@student.42.fr>              +#+  +:+       +#+            #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/02 00:46:14 by yitani            #+#    #+#              #
 #    Updated: 2026/01/05 16:05:51 by yitani           ###   ########.fr        #
+#    Created: 2026/01/02                                  #+#    #+#              #
 #                                                                              #
 # **************************************************************************** #
 
-NAME = webserv
+NAME=webserv
 
-CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98
+CXX=c++
+CXXFLAGS=-Wall -Wextra -Werror -std=c++98
 
-SRC_DIR = src
-INC_DIR = inc
-OBJ_DIR = obj
+SRC_DIR=src
+INC_DIR=inc
+OBJ_DIR=obj
 
-SRCS = $(wildcard $(SRC_DIR)/*.cpp)
-OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
-INCLUDES = -I$(INC_DIR)
+SRCS=$(wildcard $(SRC_DIR)/*.cpp)
+OBJS=$(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
+
+INCLUDES=-I$(INC_DIR)
 
 all: $(NAME)
 

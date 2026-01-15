@@ -6,105 +6,43 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 19:06:18 by odana             #+#    #+#             */
-/*   Updated: 2026/01/02 00:45:41 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/15 17:31:09 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <csignal>
 #include "../inc/Tokenizer.hpp"
 #include "../inc/Parser.hpp"
 #include "../inc/ConfigFactory.hpp"
 #include "../inc/FileUtils.hpp"
 #include "../inc/Logger.hpp"
+#include "../inc/Server.hpp"
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <csignal>
+#include <csignal>
 
-void printServerConfig(const ServerConfig &cfg)
+static Server *g_server = NULL;
+
+void signalHandler(int signum)
 {
-	std::cout << "\n=== SERVER CONFIG ===" << std::endl;
-
-	std::vector<int> ports = cfg.getPorts();
-	std::cout << "Ports: ";
-	for (size_t i = 0; i < ports.size(); i++)
-	{
-		std::cout << ports[i];
-		if (i < ports.size() - 1)
-			std::cout << ", ";
-	}
-	std::cout << std::endl;
-
-	std::cout << "IP: " << cfg.getIP() << std::endl;
-	std::cout << "Server Name: " << cfg.getServerName() << std::endl;
-	std::cout << "Root: " << cfg.getRoot() << std::endl;
-	std::cout << "Max Body Size: " << cfg.getClientMaxBodySize() << " bytes" << std::endl;
-
-	std::vector<LocationConfig> locations = cfg.getLocations();
-	std::cout << "\n--- LOCATIONS (" << locations.size() << ") ---" << std::endl;
-
-	for (size_t i = 0; i < locations.size(); i++)
-	{
-		std::cout << "\n[" << i << "] " << locations[i].getPath() << std::endl;
-
-		std::vector<std::string> methods = locations[i].getAllowedMethods();
-		std::cout << "  Methods: ";
-		if (methods.empty())
-		{
-			std::cout << "ALL";
-		}
-		else
-		{
-			for (size_t j = 0; j < methods.size(); j++)
-			{
-				std::cout << methods[j];
-				if (j < methods.size() - 1)
-					std::cout << ", ";
-			}
-		}
-		std::cout << std::endl;
-
-		std::cout << "  Root: " << locations[i].getRoot() << std::endl;
-		std::cout << "  Index: " << locations[i].getIndex() << std::endl;
-		std::cout << "  AutoIndex: " << (locations[i].isAutoIndex() ? "on" : "off") << std::endl;
-
-		if (locations[i].hasRedirect())
-		{
-			std::cout << "  Redirect: " << locations[i].getRedirectCode()
-					  << " -> " << locations[i].getRedirect() << std::endl;
-		}
-
-		if (locations[i].isUploadEnable())
-		{
-			std::cout << "  Upload: enabled (" << locations[i].getUploadStore() << ")" << std::endl;
-		}
-
-		std::vector<std::string> cgiExt = locations[i].getCgiExtensions();
-		if (!cgiExt.empty())
-		{
-			std::cout << "  CGI Extensions: ";
-			for (size_t j = 0; j < cgiExt.size(); j++)
-			{
-				std::cout << cgiExt[j];
-				if (j < cgiExt.size() - 1)
-					std::cout << ", ";
-			}
-			std::cout << std::endl;
-
-			if (!locations[i].getCgiPy().empty())
-				std::cout << "    Python: " << locations[i].getCgiPy() << std::endl;
-			if (!locations[i].getCgiPhp().empty())
-				std::cout << "    PHP: " << locations[i].getCgiPhp() << std::endl;
-			if (!locations[i].getCgiPl().empty())
-				std::cout << "    Perl: " << locations[i].getCgiPl() << std::endl;
-		}
-	}
-
-	std::cout << "\n=====================\n"
-			  << std::endl;
+	(void)signum;
+	logInfo("\nReceived signal, shutting down server...");
+	if (g_server)
+		g_server->stop();
 }
 
 int main(int argc, char **argv)
 {
 	if (argc != 2)
 	{
-		std::cerr << "Usage: " << argv[0] << " <config_file>" << std::endl;
+		logError("Usage: ./webserv <config_file>");
 		return 1;
 	}
 
@@ -125,22 +63,51 @@ int main(int argc, char **argv)
 
 	try
 	{
+		logInfo("Parsing configuration file: " + configPath);
+
 		Tokenizer tokenizer(content);
 		std::vector<Token> tokens = tokenizer.tokenize();
 
 		Parser parser(tokens);
 		ServerBlock block = parser.parseServer();
-
 		ServerConfig config = ConfigFactory::buildServer(block);
 
-		printServerConfig(config);
+		if (!config.isValid())
+		{
+			logError("Invalid server configuration");
+			return 1;
+		}
 
-		logInfo("Configuration loaded successfully");
-		logError("yousef akal kaka");
+		std::vector<int> ports = config.getPorts();
+		std::stringstream portsMsg;
+		portsMsg << "Loaded server config: " << config.getServerName() << " on ports: ";
+		for (size_t i = 0; i < ports.size(); i++)
+		{
+			portsMsg << ports[i];
+			if (i < ports.size() - 1)
+				portsMsg << ", ";
+		}
+		logInfo(portsMsg.str());
+
+		Server server(config);
+		g_server = &server;
+
+		signal(SIGINT, signalHandler);
+		signal(SIGTERM, signalHandler);
+
+		logInfo("========================================");
+		logInfo("Starting web server...");
+		logInfo("========================================");
+
+		server.run();
+
+		logInfo("Server stopped gracefully");
+		g_server = NULL;
 	}
 	catch (const std::exception &e)
 	{
-		logError(std::string("Error: ") + e.what());
+		logError(std::string("Fatal error: ") + e.what());
+		g_server = NULL;
 		return 1;
 	}
 

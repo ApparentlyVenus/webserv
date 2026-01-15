@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 19:05:08 by odana             #+#    #+#             */
-/*   Updated: 2026/01/02 00:45:29 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/15 19:21:27 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,7 +136,11 @@ bool LocationConfig::isCGI(const std::string &path) const
 	if (cgiExtension.empty())
 		return (false);
 
-	std::string ext = getMimeType(path);
+	size_t dot = path.find_last_of('.');
+	if (dot == std::string::npos)
+		return (false);
+
+	std::string ext = path.substr(dot);
 
 	for (size_t i = 0; i < cgiExtension.size(); i++)
 	{

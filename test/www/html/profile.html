@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; }
+        .info-box {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #ffc107;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>User Profile</h1>
+        
+        <div class="info-box">
+            <h3>Profile Information:</h3>
+            <ul>
+                <li><strong>Username:</strong> {{USERNAME}}</li>
+                <li><strong>Session ID:</strong> {{SESSION_ID}}</li>
+                <li><strong>Page Visits:</strong> {{VISITS}}</li>
+            </ul>
+        </div>
+        
+        <p><em>Note: Visit count increments each time you access this page.</em></p>
+        
+        <a href="/dashboard" class="btn">Back to Dashboard</a>
+        <a href="/profile" class="btn">Refresh</a>
+    </div>
+</body>
+</html>

@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/31 17:38:32 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/05 14:08:14 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/15 19:51:32 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 
 static Session *loadSession(Request &req, Response &res, bool createIfMissing)
 {
+	(void)res;
+	(void)createIfMissing;
 	if (req.cookies.find("SESSID") != req.cookies.end())
 	{
 		Session *sess = SessionManager::getSession(req.cookies["SESSID"]);
@@ -23,26 +25,17 @@ static Session *loadSession(Request &req, Response &res, bool createIfMissing)
 			return sess;
 		}
 	}
-
-	if (createIfMissing)
-	{
-		std::string newId = SessionManager::createSession();
-		std::string cookie = "SESSID=" + newId + "; Path=/; Max-Age=3600; HttpOnly";
-		res.setCookies.push_back(cookie);
-		return SessionManager::getSession(newId);
-	}
-
 	return NULL;
 }
 
-static Response handleDashboard(Request &req, Response &res)
+static Response handleDashboard(Request &req, Response &res, const ServerConfig &servConf)
 {
 	Session* sess = loadSession(req, res, false);
 
 	if (!sess || sess->data.find("logged_in") == sess->data.end())
 	{
 		res.statusCode = 302;
-		res.headers["Location"] = "/login.html";
+		res.headers["Location"] = "/test-login.html";
 		res.headers["Content-Length"] = "0";
 		res.body = "";
 		return res;
@@ -52,7 +45,7 @@ static Response handleDashboard(Request &req, Response &res)
 	std::string htmlTemplate = readFile(templatePath);
 
 	if (htmlTemplate.empty())
-		return InternalServerError(res);
+		return InternalServerError(res, servConf);
 
 	std::string html = replaceAll(htmlTemplate, "{{USERNAME}}", sess->data["username"]);
 	html = replaceAll(html, "{{SESSION_ID}}", sess->sessionId);
@@ -68,14 +61,14 @@ static Response handleDashboard(Request &req, Response &res)
 	return res;
 }
 
-static Response handleProfile(Request &req, Response &res)
+static Response handleProfile(Request &req, Response &res, const ServerConfig &servConf)
 {
 	Session* sess = loadSession(req, res, false);
 
 	if (!sess || sess->data.find("logged_in") == sess->data.end())
 	{
 		res.statusCode = 302;
-		res.headers["Location"] = "/login.html";
+		res.headers["Location"] = "/test-login.html";
 		res.headers["Content-Length"] = "0";
 		res.body = "";
 		return res;
@@ -95,7 +88,7 @@ static Response handleProfile(Request &req, Response &res)
 	std::string htmlTemplate = readFile(templatePath);
 
 	if (htmlTemplate.empty())
-		return InternalServerError(res);
+		return InternalServerError(res, servConf);
 
 	std::string html = replaceAll(htmlTemplate, "{{USERNAME}}", sess->data["username"]);
 	html = replaceAll(html, "{{SESSION_ID}}", sess->sessionId);
@@ -112,7 +105,7 @@ static Response handleProfile(Request &req, Response &res)
 	return res;
 }
 
-static Response handleLogin(Request &req, Response &res)
+static Response handleLogin(Request &req, Response &res, const ServerConfig &servConf)
 {
 	std::string username = "";
 	size_t pos = req.body.find("username=");
@@ -127,7 +120,7 @@ static Response handleLogin(Request &req, Response &res)
 
 	if (username.empty())
 	{
-		return BadRequest(res, "<html><body><h1>Username required</h1></body></html>");
+		return BadRequest(res, "<html><body><h1>Username required</h1></body></html>", servConf);
 	}
 
 	std::string sessionId = SessionManager::createSession();
@@ -161,41 +154,60 @@ static Response handleLogout(Request &req, Response &res)
 	return res;
 }
 
-static void	setUpPath(std::string &scriptName, std::string &pathInfo, const std::string &reqPath, const std::string &root)
+static void	setUpPath(std::string &scriptName, std::string &pathInfo, const std::string &fullPath, const std::string &root)
 {
-	std::vector<std::string>	splitted = split(reqPath, '/');
-	size_t						i = 0;
-	std::stringstream			ss;
+	// fullPath is already the complete file path (e.g., www/cgi-bin/env.pl)
+	// We need to extract the script name relative to root and any path info
+
+	// Find where the actual script file is
+	std::string testPath = fullPath;
+	scriptName = "";
+	pathInfo = "";
+
+	// Check if fullPath itself is a file
+	if (fileExists(testPath) && !isDirectory(testPath))
+	{
+		// Extract script name relative to root
+		if (testPath.find(root) == 0)
+		{
+			scriptName = testPath.substr(root.length());
+		}
+		return;
+	}
+
+	// Try to find the script file by removing path segments from the end
+	std::vector<std::string>	splitted = split(fullPath, '/');
+	size_t						i = splitted.size();
 	std::stringstream			pathSS;
 
-	while (i < splitted.size())
+	while (i > 0)
 	{
-		if (splitted[i].empty())
+		i--;
+		testPath = "";
+		for (size_t j = 0; j < i; j++)
 		{
-			i++;
-			continue ;
+			if (!splitted[j].empty())
+				testPath += "/" + splitted[j];
 		}
-		if (fileExists(root + ss.str()) && !isDirectory(root + ss.str()))
-		{
-			scriptName = ss.str();
-			i++;
-			break ;
-		}
-		ss << "/" << splitted[i];
-		i++;
-	}
 
-	while (i < splitted.size())
-	{
-		if (splitted[i].empty())
+		if (fileExists(testPath) && !isDirectory(testPath))
 		{
-			i++;
-			continue ;
+			// Found the script file
+			if (testPath.find(root) == 0)
+			{
+				scriptName = testPath.substr(root.length());
+			}
+
+			// Rest is path info
+			for (size_t j = i; j < splitted.size(); j++)
+			{
+				if (!splitted[j].empty())
+					pathSS << "/" << splitted[j];
+			}
+			pathInfo = pathSS.str();
+			return;
 		}
-		pathSS << "/" << splitted[i];
-		i++;
 	}
-	pathInfo = pathSS.str();
 }
 
 static std::vector<std::string>	SetUpEnv(Request &req, Response &res)
@@ -210,12 +222,13 @@ static std::vector<std::string>	SetUpEnv(Request &req, Response &res)
 	envStrings.push_back("SERVER_NAME=" + res.getServerName());
 	envStrings.push_back("SERVER_PORT=" + res.getServerPort());
 	envStrings.push_back("REMOTE_ADDR=" + res.getClientIP());
+	envStrings.push_back("REDIRECT_STATUS=200");
 	std::string	scriptName;
 	std::string	pathInfo;
-	setUpPath(scriptName, pathInfo, req.path, res.getRootPath());
+	setUpPath(scriptName, pathInfo, res.fullPath, res.getRootPath());
 	envStrings.push_back("SCRIPT_NAME=" + scriptName);
 	envStrings.push_back("PATH_INFO=" + pathInfo);
-	envStrings.push_back("SCRIPT_FILENAME=" + res.getRootPath() + scriptName);
+	envStrings.push_back("SCRIPT_FILENAME=" + res.fullPath);
 	envStrings.push_back("PATH_TRANSLATED=" + res.getRootPath() + pathInfo);
 
 	for (it = req.headers.begin(); it != req.headers.end(); ++it)
@@ -243,14 +256,14 @@ static std::vector<std::string>	SetUpEnv(Request &req, Response &res)
 	return (envStrings);
 }
 
-static Response	handleCGI(Request &req, Response &res, const LocationConfig &conf)
+static Response	handleCGI(Request &req, Response &res, const LocationConfig &conf, const ServerConfig &servConf)
 {
 	size_t dotPos = res.fullPath.find_last_of(".");
 	std::string extension = res.fullPath.substr(dotPos);
 	std::string interpreter = conf.getCgiInterpreter(extension);
 
 	if (interpreter.empty())
-		return (InternalServerError(res));
+		return (InternalServerError(res, servConf));
 	
 	std::vector<std::string> envStrings = SetUpEnv(req, res);
 	char	**envArray = new char*[envStrings.size() + 1];
@@ -265,7 +278,7 @@ static Response	handleCGI(Request &req, Response &res, const LocationConfig &con
 	if (pipe(pipe_from_child) == -1 || pipe(pipe_to_child) == -1)
 	{
 		delete[] (envArray);
-		return (InternalServerError(res));
+		return (InternalServerError(res, servConf));
 	}
 
 	pid_t pid = fork();
@@ -276,7 +289,7 @@ static Response	handleCGI(Request &req, Response &res, const LocationConfig &con
 		close(pipe_to_child[0]);
 		close(pipe_to_child[1]);
 		delete[] envArray;
-		return InternalServerError(res);
+		return InternalServerError(res, servConf);
 	}
 
 	if (pid == 0)
@@ -328,14 +341,22 @@ static Response	handleCGI(Request &req, Response &res, const LocationConfig &con
 		delete[] (envArray);
 
 		if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
-			return InternalServerError(res);
+			return InternalServerError(res, servConf);
 
 		size_t	headersEnd = output.find("\r\n\r\n");
+		size_t	headerLen = 4;
+
 		if (headersEnd == std::string::npos)
-			return InternalServerError(res);
-		
+		{
+			headersEnd = output.find("\n\n");
+			headerLen = 2;
+		}
+
+		if (headersEnd == std::string::npos)
+			return InternalServerError(res, servConf);
+
 		std::string	headers = output.substr(0, headersEnd);
-		std::string	body = output.substr(headersEnd + 4);
+		std::string	body = output.substr(headersEnd + headerLen);
 		std::vector<std::string> splitHeaders = split(headers, '\n');
 		for (size_t i = 0; i < splitHeaders.size(); i++)
 		{
@@ -373,30 +394,37 @@ static Response	handleCGI(Request &req, Response &res, const LocationConfig &con
 	}
 }
 
-Response Handlers::router(Response &res, Request &req, const LocationConfig &conf)
+Response Handlers::router(Response &res, Request &req, const LocationConfig &conf, const ServerConfig &servConf)
 {
 	if (req.method == "POST")
-		return (handlePost(req, res, conf));
+		return (handlePost(req, res, conf, servConf));
 
 	else if (req.method == "GET")
-		return (handleGet(req, res, conf));
+		return (handleGet(req, res, conf, servConf));
 	else if (req.method == "DELETE")
-		return (handleDelete(res, conf));
-	return (checkMethodAllowed(res, conf));
+		return (handleDelete(res, conf, servConf));
+	return (checkMethodAllowed(res, servConf));
 }
 
-Response Handlers::handleGet(Request &req, Response &res, const LocationConfig &conf)
+Response Handlers::handleGet(Request &req, Response &res, const LocationConfig &conf, const ServerConfig &servConf)
 {
 	std::stringstream	ss;
 
 	if (!conf.isMethodAllowed("GET"))
-		return (checkMethodAllowed(res, conf));
+		return (checkMethodAllowed(res, servConf));
 
+	if (req.path == "/dashboard")
+		return handleDashboard(req, res, servConf);
+	if (req.path == "/profile")
+		return handleProfile(req, res, servConf);
+	if (req.path == "/logout")
+		return handleLogout(req, res);
+		
 	if (!fileExists(res.fullPath))
-		return (NotFound(res));
+		return (NotFound(res, servConf));
 
 	if (!isReadable(res.fullPath))
-		return (Forbidden(res));
+		return (Forbidden(res, servConf));
 
 	if (isDirectory(res.fullPath))
 	{
@@ -409,88 +437,102 @@ Response Handlers::handleGet(Request &req, Response &res, const LocationConfig &
 			return (GetSuccess(res, indexPath));
 
 		if (conf.isAutoIndex())
-			return (DirListing(res, req.path));
+			return (DirListing(res, req.path, servConf));
 
-		return (Forbidden(res));
+		return (Forbidden(res, servConf));
 	}
 
-	if (req.path == "/dashboard")
-		return handleDashboard(req, res);
-	if (req.path == "/profile")
-		return handleProfile(req, res);
-	if (req.path == "/logout")
-		return handleLogout(req, res);
-
 	if (conf.isCGI(res.fullPath))
-		return handleCGI(req, res, conf);
+		return handleCGI(req, res, conf, servConf);
 	
 	return (GetSuccess(res, res.fullPath));
 }
 
-Response Handlers::handlePost(Request &req, Response &res, const LocationConfig &conf)
+Response Handlers::handlePost(Request &req, Response &res, const LocationConfig &conf, const ServerConfig &servConf)
 {
 	std::stringstream ss;
-	std::string uploadPath;
-	std::string fileName;
-
-	uploadPath = conf.getUploadStore();
-	size_t pos = res.fullPath.find_last_of("/");
-	fileName = res.fullPath.substr(pos + 1);
 
 	if (!conf.isMethodAllowed("POST"))
-		return (checkMethodAllowed(res, conf));
-
-	if (!conf.isUploadEnable())
-		return (Forbidden(res));
-
-	if (!fileExists(uploadPath) || !isDirectory(uploadPath))
-		return (InternalServerError(res));
-
-	if (!isWritable(uploadPath))
-		return (Forbidden(res));
-
-	if (req.body.empty())
-		return (BadRequest(res, "<html><body><h1>400 Bad Request - No data</h1></body></html>"));
-
-	if (fileName.empty() || fileName.find("..") != std::string::npos || fileName.length() > 255)
-		return (BadRequest(res, "<html><body><h1>400 Bad Request - Invalid filename</h1></body></html>"));
+		return (checkMethodAllowed(res, servConf));
 
 	if (req.path == "/do_login")
-		return handleLogin(req, res);
+		return handleLogin(req, res, servConf);
 
 	if (conf.isCGI(res.fullPath))
-		return handleCGI(req, res, conf);
-		
+		return handleCGI(req, res, conf, servConf);
+
+	if (!conf.isUploadEnable())
+		return (Forbidden(res, servConf));
+
+	std::string uploadPath = conf.getUploadStore();
+	if (!fileExists(uploadPath) || !isDirectory(uploadPath))
+		return (InternalServerError(res, servConf));
+
+	if (!isWritable(uploadPath))
+		return (Forbidden(res, servConf));
+
+	if (req.body.empty())
+		return (BadRequest(res, "<html><body><h1>400 Bad Request - No data</h1></body></html>", servConf));
+
+	std::string fileName;
+	std::string fileContent;
+
+	if (req.headers.find("content-type") != req.headers.end())
+	{
+		std::string contentType = req.headers["content-type"];
+		if (contentType.find("multipart/form-data") != std::string::npos)
+		{
+			std::string boundary = extractBoundary(contentType);
+			if (boundary.empty() || !parseMultipartFile(req.body, boundary, fileName, fileContent))
+				return (BadRequest(res, "<html><body><h1>400 Bad Request - Invalid multipart data</h1></body></html>", servConf));
+		}
+		else
+		{
+			size_t pos = res.fullPath.find_last_of("/");
+			fileName = res.fullPath.substr(pos + 1);
+			fileContent = req.body;
+		}
+	}
+	else
+	{
+		size_t pos = res.fullPath.find_last_of("/");
+		fileName = res.fullPath.substr(pos + 1);
+		fileContent = req.body;
+	}
+
+	if (fileName.empty() || fileName.find("..") != std::string::npos || fileName.length() > 255)
+		return (BadRequest(res, "<html><body><h1>400 Bad Request - Invalid filename</h1></body></html>", servConf));
+
 	std::string finalPath = uploadPath + "/" + fileName;
 	std::ofstream file(finalPath.c_str(), std::ios::binary);
 	if (!file.is_open())
-		return (InternalServerError(res));
+		return (InternalServerError(res, servConf));
 
-	file.write(req.body.c_str(), req.body.length());
+	file.write(fileContent.c_str(), fileContent.length());
 	file.close();
 	return (PostSuccess(res));
 }
 
-Response Handlers::handleDelete(Response &res, const LocationConfig &conf)
+Response Handlers::handleDelete(Response &res, const LocationConfig &conf, const ServerConfig &servConf)
 {
 	if (!conf.isMethodAllowed("DELETE"))
-		return (checkMethodAllowed(res, conf));
+		return (checkMethodAllowed(res, servConf));
 		
 	if (!fileExists(res.fullPath))
-		return (NotFound(res));
+		return (NotFound(res, servConf));
 
 	std::string dirPath = res.fullPath;
 
 	if (isDirectory(dirPath))
-		return (Conflict(res));
+		return (Conflict(res, servConf));
 
 	size_t pos = dirPath.find_last_of("/");
 	dirPath = res.fullPath.substr(0, pos);
 	if (!isWritable(dirPath))
-		return (Forbidden(res));
+		return (Forbidden(res, servConf));
 
 	if (std::remove(res.fullPath.c_str()) != 0)
-		return (InternalServerError(res));
+		return (InternalServerError(res, servConf));
 
 	return (DeleteSuccess(res));
 }

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webserv Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border-left: 4px solid #4CAF50;
+            background-color: #f9f9f9;
+        }
+        a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        ul {
+            line-height: 1.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Webserv Test Suite</h1>
+
+        <div class="test-section">
+            <h2>GET Method Tests</h2>
+            <ul>
+                <li><a href="/">Home Page (GET)</a></li>
+                <li><a href="/test-get.html">GET Test Page</a></li>
+                <li><a href="/uploads">View Uploads Directory (GET with autoindex)</a></li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2>POST Method Tests</h2>
+            <ul>
+                <li><a href="/test-post.html">POST Form Test</a></li>
+                <li><a href="/test-upload.html">File Upload Test</a></li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2>DELETE Method Tests</h2>
+            <ul>
+                <li><a href="/test-delete.html">DELETE Test Page</a></li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2>CGI Tests</h2>
+            <ul>
+                <li><a href="/cgi-bin/test.py">Python CGI Script (GET)</a></li>
+                <li><a href="/cgi-bin/test.php">PHP CGI Script (GET)</a></li>
+                <li><a href="/cgi-bin/test.pl">Perl CGI Script (GET)</a></li>
+                <li><a href="/cgi-bin/form-handler.py">Python Form Handler (POST)</a></li>
+            </ul>
+        </div>
+		<div class="test-section">
+			<h2>Session & Cookie Tests</h2>
+			<ul>
+				<li><a href="/test-login.html">Login Test (Sessions & Cookies)</a></li>
+				<li><a href="/dashboard">Dashboard (requires login)</a></li>
+				<li><a href="/profile">Profile (requires login)</a></li>
+				<li><a href="/logout">Logout</a></li>
+			</ul>
+		</div>
+    </div>
+</body>
+</html>

@@ -3,7 +3,9 @@
 #include <cstdlib>
 #include <ctime>
 
-Session::Session(const std::string &id) : sessionId(id), createdAt(time(NULL)), lastAccess(time(NULL)) {}
+Session::Session() : sessionId(""), createdAt(time(NULL)), lastAccess(time(NULL)) {}
+
+Session::Session(const std::string& id) : sessionId(id), createdAt(time(NULL)), lastAccess(time(NULL)) {}
 
 std::map<std::string, Session> SessionManager::sessions;
 
