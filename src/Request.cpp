@@ -6,11 +6,19 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/25 20:41:56 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/02 17:21:43 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/15 18:18:11 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Request.hpp"
+
+Request::Request()
+{
+	errorCode = 0;
+	state = INCOMPLETE;
+}
+
+Request::~Request(){}
 
 static std::string	normalizePath(std::string &path)
 {

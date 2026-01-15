@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Response.cpp                                       :+:      :+:    :+:   */
+/*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
+/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 21:52:35 by wasamr            #+#    #+#             */
-/*   Updated: 2026/01/02 17:43:05 by wasamr           ###   ########.fr       */
+/*   Updated: 2026/01/15 19:08:12 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -243,7 +243,7 @@ void Server::handleClientRead(int clientFd)
     if (req.state != ERROR && req.errorCode == 0)
     {
         std::cout << "Request parsed: " << req.method << " " << req.path << std::endl;
-        res = Handlers::router(res, req, loc);
+        res = Handlers::router(res, req, loc, *servConf);
     }
 
     responseStr = Response::format(res);
@@ -402,23 +402,7 @@ void Server::run()
     std::cout << "Server shutting down..." << std::endl;
 }
 
-
-
-/*
-Error or hangup:
-
-POLLERR → error on socket
-
-POLLHUP → client disconnected
-
-POLLNVAL → invalid fd
-
-
-Ready to read (POLLIN):*/
-
-
-// struct pollfd {
-//     int   fd;       // the file descriptor (socket, etc.)
-//     short events;   // events you want to monitor (input, output, etc.)
-//     short revents;  // events that actually occurred (set by poll)
-// };
+void Server::stop()
+{
+    is_server_running = false;
+}

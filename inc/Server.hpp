@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: wasmar <wasmar@student.42.fr>              +#+  +:+       +#+        */
+/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 15:30:24 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/02 21:52:06 by wasmar           ###   ########.fr       */
+/*   Updated: 2026/01/15 17:29:36 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ class Server
         Server(const ServerConfig& config);
         ~Server();
 
+		void stop();
         void run();
 };
 

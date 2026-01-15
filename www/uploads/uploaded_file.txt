@@ -1,2 +1,0 @@
-filename=uploaded_file.txt
-content=f

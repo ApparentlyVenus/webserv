@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StringUtils.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
+/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/23 13:07:51 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/03 16:26:15 by odana            ###   ########.fr       */
+/*   Updated: 2026/01/15 19:51:36 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ bool toBool(const std::string &str)
 	if (lower == "true" || lower == "on" || lower == "yes" || lower == "1")
 		return true;
 	if (lower == "false" || lower == "off" || lower == "no" || lower == "0")
-		return true;
+		return false;
 	throw std::runtime_error("invalid boolean " + str);
 }
 

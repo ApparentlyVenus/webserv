@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/31 19:15:17 by yitani            #+#    #+#             */
-/*   Updated: 2025/12/31 19:15:18 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/15 19:18:59 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include "StringUtils.hpp"
 # include <string>
 # include <sstream>
+# include "Logger.hpp"
 
 class ConfigFactory {
 public:
