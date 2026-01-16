@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 19:05:40 by odana             #+#    #+#             */
-/*   Updated: 2026/01/02 00:45:45 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/16 17:46:08 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ Token Parser::expect(TokenType type)
 {
 	Token cur = peek();
 	if (cur.type != type)
-		throw std::runtime_error("unexpected token"); // will become a proper exception
+		throw std::runtime_error("unexpected token");
 	return consume();
 }
 
@@ -75,7 +75,7 @@ ServerBlock Parser::parseServer()
 	Token server = expect(WORD);
 
 	if (server.val != "server")
-		throw std::runtime_error("expected server token"); // unexpect token exception as well
+		throw std::runtime_error("expected server token");
 
 	Token open = expect(OPEN_BRACE);
 
@@ -98,7 +98,7 @@ LocationBlock Parser::parseLocation()
 	Token location = expect(WORD);
 
 	if (location.val != "location")
-		throw std::runtime_error("expected location token"); // unexpected token exception
+		throw std::runtime_error("expected location token");
 
 	Token path = expect(WORD);
 	Token open = expect(OPEN_BRACE);

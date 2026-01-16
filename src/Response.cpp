@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
+/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 21:52:35 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/02 17:43:05 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/16 18:02:05 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,13 +54,34 @@ Response::Response(Request &req, const LocationConfig &conf, const ServerConfig&
 	if (req.state == ERROR)
 	{
 		this->statusCode = req.errorCode;
-		std::stringstream	ss;
-		ss << req.errorCode;
-		this->body = "<html><body><h1>" + ss.str() + " Error</h1></body></html>";
-		ss.clear();
-		ss.str("");
+
+		if (servConf.hasErrorPage(req.errorCode))
+		{
+			std::string errorPagePath = servConf.getErrorPage(req.errorCode);
+			
+			if (fileExists(errorPagePath) && isReadable(errorPagePath))
+			{
+				this->body = readFile(errorPagePath);
+				this->headers["Content-Type"] = getMimeType(errorPagePath);
+			}
+			else
+			{
+				std::stringstream ss;
+				ss << req.errorCode;
+				this->body = "<html><body><h1>" + ss.str() + " Error</h1></body></html>";
+				this->headers["Content-Type"] = "text/html";
+			}
+		}
+		else
+		{
+			std::stringstream ss;
+			ss << req.errorCode;
+			this->body = "<html><body><h1>" + ss.str() + " Error</h1></body></html>";
+			this->headers["Content-Type"] = "text/html";
+		}
+		
+		std::stringstream ss;
 		ss << this->body.length();
-		this->headers["Content-Type"] = "text/html";
 		this->headers["Content-Length"] = ss.str();
 	}
 }

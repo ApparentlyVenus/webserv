@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 21:52:35 by wasamr            #+#    #+#             */
-/*   Updated: 2026/01/15 19:08:12 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/16 17:29:43 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,14 +103,7 @@ int Server::createServerSocket(int port, const std::string &ip)
 
 void Server::setNonBlocking(int fd)
 {
-    int flags = fcntl(fd, F_GETFL, 0);
-    if (flags < 0)
-    {
-        std::cerr << "Error: fcntl F_GETFL failed" << std::endl;
-        return;
-    }
-
-    if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) < 0)
+    if (fcntl(fd, F_SETFL, O_NONBLOCK) < 0)
     {
         std::cerr << "Error: fcntl F_SETFL failed" << std::endl;
         return;

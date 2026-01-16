@@ -6,7 +6,7 @@
 /*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/31 17:38:32 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/15 19:51:32 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/16 17:47:41 by yitani           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,18 +156,12 @@ static Response handleLogout(Request &req, Response &res)
 
 static void	setUpPath(std::string &scriptName, std::string &pathInfo, const std::string &fullPath, const std::string &root)
 {
-	// fullPath is already the complete file path (e.g., www/cgi-bin/env.pl)
-	// We need to extract the script name relative to root and any path info
-
-	// Find where the actual script file is
 	std::string testPath = fullPath;
 	scriptName = "";
 	pathInfo = "";
 
-	// Check if fullPath itself is a file
 	if (fileExists(testPath) && !isDirectory(testPath))
 	{
-		// Extract script name relative to root
 		if (testPath.find(root) == 0)
 		{
 			scriptName = testPath.substr(root.length());
@@ -175,7 +169,6 @@ static void	setUpPath(std::string &scriptName, std::string &pathInfo, const std:
 		return;
 	}
 
-	// Try to find the script file by removing path segments from the end
 	std::vector<std::string>	splitted = split(fullPath, '/');
 	size_t						i = splitted.size();
 	std::stringstream			pathSS;
@@ -192,13 +185,11 @@ static void	setUpPath(std::string &scriptName, std::string &pathInfo, const std:
 
 		if (fileExists(testPath) && !isDirectory(testPath))
 		{
-			// Found the script file
 			if (testPath.find(root) == 0)
 			{
 				scriptName = testPath.substr(root.length());
 			}
 
-			// Rest is path info
 			for (size_t j = i; j < splitted.size(); j++)
 			{
 				if (!splitted[j].empty())

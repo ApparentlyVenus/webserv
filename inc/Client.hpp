@@ -1,7 +1,19 @@
-#ifndef CLIENT_HPP
-#define CLIENT_HPP
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Client.hpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/16 17:48:14 by yitani            #+#    #+#             */
+/*   Updated: 2026/01/16 17:48:20 by yitani           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#include <string>
+#ifndef CLIENT_HPP
+# define CLIENT_HPP
+
+# include <string>
 
 
 class Client
