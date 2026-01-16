@@ -1,6 +1,6 @@
 # Webserv
 
-*This project has been created as part of the 42 curriculum by yitani, odana, wasmar.*
+*This project has been created as part of the 42 curriculum by odana, wasmar and yitani.*
 
 ## Description
 
