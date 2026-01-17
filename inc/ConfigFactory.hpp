@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigFactory.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
+/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/31 19:15:17 by yitani            #+#    #+#             */
-/*   Updated: 2026/01/16 17:48:49 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/18 00:13:20 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,15 +15,18 @@
 
 # include "LocationConfig.hpp"
 # include "ServerConfig.hpp"
+# include "FileConfig.hpp"
 # include "Parser.hpp"
 # include "StringUtils.hpp"
 # include <string>
 # include <sstream>
 # include "Logger.hpp"
+# include <set>
 
 class ConfigFactory
 {
 	public:
+		static FileConfig buildFileConfig(const std::vector<ServerBlock>& blocks);
 		static ServerConfig buildServer(const ServerBlock &block);
 		static LocationConfig buildLocation(const LocationBlock &block);
 

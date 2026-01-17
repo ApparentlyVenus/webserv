@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
+/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 19:06:18 by odana             #+#    #+#             */
-/*   Updated: 2026/01/15 17:31:09 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/18 00:17:26 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,15 +69,16 @@ int main(int argc, char **argv)
 		std::vector<Token> tokens = tokenizer.tokenize();
 
 		Parser parser(tokens);
-		ServerBlock block = parser.parseServer();
-		ServerConfig config = ConfigFactory::buildServer(block);
+		std::vector<ServerBlock> blocks = parser.parseServers();
+		FileConfig fileConfig = ConfigFactory::buildFileConfig(blocks);
 
-		if (!config.isValid())
+		if (!fileConfig.isValid())
 		{
 			logError("Invalid server configuration");
 			return 1;
 		}
 
+		// this needs fixing now for each port and like whatever wael has to do
 		std::vector<int> ports = config.getPorts();
 		std::stringstream portsMsg;
 		portsMsg << "Loaded server config: " << config.getServerName() << " on ports: ";

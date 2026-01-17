@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parser.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
+/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 19:04:45 by odana             #+#    #+#             */
-/*   Updated: 2026/01/16 17:48:06 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/18 00:01:33 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,8 @@ class Parser
 		Parser &operator=(const Parser &other);
 		~Parser();
 		bool isAtEnd() const;
+		
+		std::vector<ServerBlock> parseServers();
 		ServerBlock parseServer();
 		LocationBlock parseLocation();
 		Directive parseDirective();

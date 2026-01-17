@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigFactory.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
+/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 19:05:00 by odana             #+#    #+#             */
-/*   Updated: 2026/01/15 19:21:33 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/18 00:05:27 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,4 +197,33 @@ LocationConfig ConfigFactory::buildLocation(const LocationBlock &block)
 
 	validateLocationConfig(config);
 	return config;
+}
+
+FileConfig ConfigFactory::buildFileConfig(const std::vector<ServerBlock>& blocks)
+{
+    FileConfig config;
+    std::set<std::string> used;
+    
+    for (size_t i = 0; i < blocks.size(); i++)
+    {
+        ServerConfig server = buildServer(blocks[i]);
+        
+        std::vector<int> ports = server.getPorts();
+        std::string ip = server.getIP();
+        
+        for (size_t j = 0; j < ports.size(); j++)
+        {
+            std::stringstream binding;
+            binding << ip << ":" << ports[j];
+            
+            if (used.find(binding.str()) != used.end())
+                throw std::runtime_error("Duplicate binding: " + binding.str());
+                
+            used.insert(binding.str());
+        }
+        
+        config.addServer(server);
+    }
+    
+    return config;
 }

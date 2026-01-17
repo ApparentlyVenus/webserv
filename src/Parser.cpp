@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parser.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yitani <yitani@student.42.fr>              +#+  +:+       +#+        */
+/*   By: odana <odana@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 19:05:40 by odana             #+#    #+#             */
-/*   Updated: 2026/01/16 17:46:08 by yitani           ###   ########.fr       */
+/*   Updated: 2026/01/18 00:03:14 by odana            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,19 @@ Token Parser::expect(TokenType type)
 	if (cur.type != type)
 		throw std::runtime_error("unexpected token");
 	return consume();
+}
+
+std::vector<ServerBlock> Parser::parseServers()
+{
+    std::vector<ServerBlock> blocks;
+    
+    while (!isAtEnd())
+    {
+        ServerBlock block = parseServer();
+        blocks.push_back(block);
+    }
+    
+    return blocks;
 }
 
 ServerBlock Parser::parseServer()
