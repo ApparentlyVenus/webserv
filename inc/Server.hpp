@@ -28,6 +28,7 @@
 # include <poll.h>
 # include <iostream>
 # include "../inc/Response.hpp"
+# include "../inc/FileConfig.hpp"
 
 typedef struct ListeningSocket
 {
@@ -39,11 +40,16 @@ typedef struct ListeningSocket
 class Server
 {
 private:
-	ServerConfig config;
+	std::map<int, size_t> socketToConfig; // listening_fd to config
+	std::map<int, int> clientToSocket; // lclient_fd to server_fd
+	std::vector<ServerConfig> configs;
 	std::vector<LSocket> LSockets;
 	std::vector<struct pollfd> pollFds;
 	std::map<int, Client *> clients;
 	bool is_server_running;
+
+	ServerConfig* getConfigSocket(int serverFd);
+    ServerConfig* getConfigClient(int clientFd);
 
 	int createServerSocket(int port, const std::string &ip);
 	void setNonBlocking(int fd);
@@ -54,11 +60,9 @@ private:
 	void handleClientWrite(int clientFd);
 	void closeClient(int clientFd);
 
-	ServerConfig *getServerConfig();
-
 public:
 	Server();
-	Server(const ServerConfig &config);
+	Server(const FileConfig &config);
 	~Server();
 
 	void stop();

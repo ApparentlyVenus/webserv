@@ -63,47 +63,56 @@ int main(int argc, char **argv)
 
 	try
 	{
-		logInfo("Parsing configuration file: " + configPath);
+	    logInfo("Parsing configuration file: " + configPath);
 
-		Tokenizer tokenizer(content);
-		std::vector<Token> tokens = tokenizer.tokenize();
+	    Tokenizer tokenizer(content);
+	    std::vector<Token> tokens = tokenizer.tokenize();
 
-		Parser parser(tokens);
-		std::vector<ServerBlock> blocks = parser.parseServers();
-		FileConfig fileConfig = ConfigFactory::buildFileConfig(blocks);
+	    Parser parser(tokens);
+	    std::vector<ServerBlock> blocks = parser.parseServers();
+	    FileConfig fileConfig = ConfigFactory::buildFileConfig(blocks);
 
-		if (!fileConfig.isValid())
-		{
-			logError("Invalid server configuration");
-			return 1;
-		}
+	    if (!fileConfig.isValid())
+	    {
+	        logError("Invalid file configuration");
+	        return 1;
+	    }
 
-		// this needs fixing now for each port and like whatever wael has to do
-		std::vector<int> ports = config.getPorts();
-		std::stringstream portsMsg;
-		portsMsg << "Loaded server config: " << config.getServerName() << " on ports: ";
-		for (size_t i = 0; i < ports.size(); i++)
-		{
-			portsMsg << ports[i];
-			if (i < ports.size() - 1)
-				portsMsg << ", ";
-		}
-		logInfo(portsMsg.str());
+	    // Log all server configs
+	    std::vector<ServerConfig> configs = fileConfig.getServers();
+	    std::stringstream configMsg;
+	    configMsg << "Loaded " << configs.size() << " server configuration(s):";
+	    logInfo(configMsg.str());
+	
+	    for (size_t i = 0; i < configs.size(); i++)
+	    {
+	        std::vector<int> ports = configs[i].getPorts();
+	        std::stringstream serverMsg;
+	        serverMsg << "  [" << i << "] " << configs[i].getServerName() 
+	                  << " on " << configs[i].getIP() << " ports: ";
+	        for (size_t j = 0; j < ports.size(); j++)
+	        {
+	            serverMsg << ports[j];
+	            if (j < ports.size() - 1)
+	                serverMsg << ", ";
+	        }
+	        logInfo(serverMsg.str());
+	    }
 
-		Server server(config);
-		g_server = &server;
+	    Server server(fileConfig);
+	    g_server = &server;
 
-		signal(SIGINT, signalHandler);
-		signal(SIGTERM, signalHandler);
+	    signal(SIGINT, signalHandler);
+	    signal(SIGTERM, signalHandler);
 
-		logInfo("========================================");
-		logInfo("Starting web server...");
-		logInfo("========================================");
+	    logInfo("========================================");
+	    logInfo("Starting web server...");
+	    logInfo("========================================");
 
-		server.run();
+	    server.run();
 
-		logInfo("Server stopped gracefully");
-		g_server = NULL;
+	    logInfo("Server stopped gracefully");
+	    g_server = NULL;
 	}
 	catch (const std::exception &e)
 	{

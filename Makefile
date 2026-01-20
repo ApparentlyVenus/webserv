@@ -34,7 +34,8 @@ SRCS = $(SRC_DIR)/main.cpp \
        $(SRC_DIR)/SessionManager.cpp \
        $(SRC_DIR)/StringUtils.cpp \
        $(SRC_DIR)/FileUtils.cpp \
-       $(SRC_DIR)/Logger.cpp
+       $(SRC_DIR)/Logger.cpp \
+       $(SRC_DIR)/FileConfig.cpp
 
 OBJS = $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
@@ -52,7 +53,8 @@ HEADERS = $(INC_DIR)/Server.hpp \
           $(INC_DIR)/SessionManager.hpp \
           $(INC_DIR)/StringUtils.hpp \
           $(INC_DIR)/FileUtils.hpp \
-          $(INC_DIR)/Logger.hpp
+          $(INC_DIR)/Logger.hpp \
+          $(INC_DIR)/FileConfig.hpp
 
 all: $(NAME)
 

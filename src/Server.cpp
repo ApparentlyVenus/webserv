@@ -27,13 +27,11 @@
 Server::Server()
 {
 }
-Server::Server(const ServerConfig& config)
-    : config(config), is_server_running(false)
+Server::Server(const FileConfig& config) : is_server_running(false)
 {
-}
-ServerConfig* Server::getServerConfig()
-{
-    return &config;
+    configs = config.getServers();
+    if (configs.empty())
+        throw std::runtime_error("No server configuration available");
 }
 
 Server::~Server()
@@ -101,6 +99,25 @@ int Server::createServerSocket(int port, const std::string &ip)
     return sockfd;
 }
 
+ServerConfig* Server::getConfigSocket(int serverFd)
+{
+    std::map<int, size_t>::iterator it = socketToConfig.find(serverFd);
+    if (it == socketToConfig.end())
+        return NULL;
+    
+    return &configs[it->second];
+}
+
+ServerConfig* Server::getConfigClient(int clientFd)
+{
+    std::map<int, int>::iterator it = clientToSocket.find(clientFd);
+    if (it == clientToSocket.end())
+        return NULL;
+    
+    int serverFd = it->second;
+    return getConfigSocket(serverFd);
+}
+
 void Server::setNonBlocking(int fd)
 {
     if (fcntl(fd, F_SETFL, O_NONBLOCK) < 0)
@@ -110,41 +127,42 @@ void Server::setNonBlocking(int fd)
     }
 }
 
-
 void Server::setupServerSockets()
 {
-    std::vector<int> ports = config.getPorts();
-    std::string ip = config.getIP();
-    LSocket lsock;
-    struct pollfd pfd;
-    size_t i = 0;
-
-
-    while (i < ports.size())
+    for (size_t j = 0; j < configs.size(); j++) 
     {
-        int port = ports[i];
-        int sockfd = createServerSocket(port, ip);
-        if (sockfd < 0)
+        LSocket lsock;
+        std::vector<int> ports = configs[j].getPorts();
+        std::string ip = configs[j].getIP();
+
+        for (size_t i = 0; i < ports.size(); i++)
         {
-            std::cerr << "Error: Failed to create socket for " << ip << ":" << port << std::endl;
-            i++;
-            continue;
+            int port = ports[i];
+            int sockfd = createServerSocket(port, ip);
+            if (sockfd < 0)
+            {
+                std::cerr << "Error: Failed to create socket for " << ip << ":" << port << std::endl;
+                i++;
+                continue;
+            }
+
+            setNonBlocking(sockfd);
+
+            LSocket lsock;
+            lsock.fd = sockfd;
+            lsock.ip = ip;
+            lsock.port = port;
+            LSockets.push_back(lsock);
+
+            socketToConfig[sockfd] = j; // this sockfd belongs to config[j]
+
+            struct pollfd pfd;
+            pfd.fd = sockfd;
+            pfd.events = POLLIN;
+            pfd.revents = 0;
+            pollFds.push_back(pfd);
         }
-
-        setNonBlocking(sockfd);
-
-        lsock.fd = sockfd;
-        lsock.ip = ip;
-        lsock.port = port;
-        LSockets.push_back(lsock);
-
-        pfd.fd = sockfd;
-        pfd.events = POLLIN;
-        pfd.revents = 0;
-        pollFds.push_back(pfd);
-        i++;
     }
-
     std::cout << "Setup complete: " << LSockets.size() << " listening socket(s) created" << std::endl;
 }
 
@@ -181,6 +199,8 @@ void Server::acceptNewConnection(int serverFd)
     Client *client = new Client(clientFd, std::string(clientIP), serverPort);
     clients[clientFd] = client;
 
+    clientToSocket[clientFd] = serverFd;
+
     pfd.fd = clientFd;
     pfd.events = POLLIN;
     pfd.revents = 0;
@@ -195,7 +215,7 @@ void Server::handleClientRead(int clientFd)
     ServerConfig *servConf;
     int maxBodySize;
     Request req;
-    LocationConfig loc;
+    const LocationConfig *loc;
     std::string responseStr; 
     size_t i =0;
     Client *client = clients[clientFd];
@@ -221,22 +241,33 @@ void Server::handleClientRead(int clientFd)
     buffer[bytesRead] = '\0';
     client->appendToBuffer(std::string(buffer, bytesRead));
 
-    servConf = getServerConfig();
+    servConf = getConfigClient(clientFd);
+    if (!servConf)
+    {
+        std::cerr << "Error: No config found for client fd=" << clientFd << std::endl;
+        closeClient(clientFd);
+        return;
+    }
     maxBodySize = servConf->getClientMaxBodySize();
     req = Request::parse(client->getRequestBuffer(), maxBodySize);
 
     if (req.state == INCOMPLETE)
         return;
 
-    loc = *(servConf->matchLocation(req.path));
+    loc = servConf->matchLocation(req.path);
+    if (!loc)
+    {
+        std::cerr << "Error: No location matched for path=" << req.path << std::endl;
+        closeClient(clientFd);
+        return;
+    }
 
-
-    Response res(req, loc, *servConf,client->getServerPort(), client->getClientIP());
+    Response res(req, *loc, *servConf,client->getServerPort(), client->getClientIP());
 
     if (req.state != ERROR && req.errorCode == 0)
     {
         std::cout << "Request parsed: " << req.method << " " << req.path << std::endl;
-        res = Handlers::router(res, req, loc, *servConf);
+        res = Handlers::router(res, req, *loc, *servConf);
     }
 
     responseStr = Response::format(res);
@@ -302,6 +333,8 @@ void Server::closeClient(int clientFd)
         delete it->second;
         clients.erase(it);
     }
+
+    clientToSocket.erase(clientFd);
 
     std::vector<struct pollfd>::iterator pfd = pollFds.begin();
 
